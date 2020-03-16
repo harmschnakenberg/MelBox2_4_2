@@ -1,0 +1,108 @@
+﻿<Window x:Class="MelBox2_4.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MelBox2_4"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Closing="Window_Closing">
+
+    
+    <Window.Resources>
+        <local:ProgressForegroundConverter x:Key="ProgressForegroundConverter" />
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Menu >
+            <MenuItem Header="Modem">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                </Grid>
+            </MenuItem>
+        </Menu>
+
+        <TabControl Grid.Row="1">
+            <TabItem Header="Modem">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label Content="Signalstärke" />
+                    <Button Content="Test" Grid.Column="1" x:Name="Gsm_Button_GetSignalQuality" Click="Gsm_Button_GetSignalQuality_Click"/>
+                    <ProgressBar Grid.Column="2" ToolTip="Signalstärke GSM-Netz" 
+                                 Maximum="31" 
+                                 x:Name="Gsm_ProgressBar_SignalQuality" 
+                                 Foreground="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Value, Converter={StaticResource ProgressForegroundConverter}}"
+                                 />
+
+                    <ScrollViewer Grid.Row="1" Grid.Column="2" Grid.RowSpan="10" x:Name="Gsm_ScrollViewer_SerialPortResponse" VerticalAlignment="Stretch" IsEnabled="True" >
+                        <TextBox x:Name="Gsm_TextBox_SerialPortResponse" TextChanged="Gsm_TextBox_SerialPortResponse_TextChanged" />
+                    </ScrollViewer>
+                    
+                    <Label Grid.Row="1" Grid.Column="0"  Content="Port Name" />
+                    <ComboBox Grid.Row="1" Grid.Column="1" x:Name="Gsm_ComboBox_PortName" />
+                    
+                    <Label Grid.Row="2" Grid.Column="0" Content="BaudRate" />
+                    <ComboBox Grid.Row="2" Grid.Column="1" x:Name="Gsm_ComboBox_BaudRate" />
+                    
+                    <Label Grid.Row="3" Grid.Column="0" Content="DataBits" />
+                    <ComboBox Grid.Row="3" Grid.Column="1" x:Name="Gsm_ComboBox_DataBits" />
+
+                    <Label Grid.Row="4" Grid.Column="0" Content="Parität" />
+                    <ComboBox Grid.Row="4" Grid.Column="1" x:Name="Gsm_ComboBox_Parity" />
+
+                    <Label Grid.Row="5" Grid.Column="0" Content="Stop Bits" />
+                    <ComboBox Grid.Row="5" Grid.Column="1" x:Name="Gsm_ComboBox_StopBits" />
+
+                    <Separator Grid.Row="6" Grid.RowSpan="2" Height="5" />
+                    
+                    <Button Grid.Row="7" Content="Lese SMS von ID" x:Name="Gsm_Button_ReadSmsFromId" Click="Gsm_Button_ReadSmsFromId_Click"/>
+                    <TextBox Grid.Row="7" Grid.Column="1" Text="1" x:Name="Gsm_TextBox_ReadSmsId" HorizontalContentAlignment="Center"/>
+                    
+                    <Button Grid.Row="8" Content="Lese alle SMS" x:Name="Gsm_Button_ReadAllSms" Click="Gsm_Button_ReadAllSms_Click"/>
+                    
+                    <Button Grid.Row="9" Content="SMS abonieren" x:Name="Gsm_Button_SubscribeSms" Click="Gsm_Button_SubscribeSms_Click"/>
+
+                    <Button Grid.Row="10" Content="SMS senden an:" x:Name="Gsm_Button_SendSms" Click="Gsm_Button_SendSms_Click" />
+                    <TextBox Grid.Row="11" x:Name="Gsm_TextBox_SendSmsTo" Text="+4915195285304" />
+                    <WrapPanel Grid.Row="12" MaxWidth="100">
+                    <TextBox x:Name="Gsm_TextBox_SendSmsContent" Text="Dies ist eine Testnachricht von MelBox2." TextWrapping="Wrap" />
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+            
+        </TabControl>
+
+        <StatusBar Grid.Row="2">
+            <StatusBarItem Content="Status" />
+        </StatusBar>
+    </Grid>
+</Window>
