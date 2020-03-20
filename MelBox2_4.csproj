@@ -26,6 +26,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -42,6 +43,7 @@
     <Reference Include="System.Data.SQLite, Version=1.0.112.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>packages\System.Data.SQLite.Core.1.0.112.0\lib\net46\System.Data.SQLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -60,12 +62,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Master_Visual.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="Contacts.cs" />
     <Compile Include="DataClass.cs" />
     <Compile Include="Gsm_Commands.cs" />
     <Compile Include="Gsm_SerialPortManager.cs" />
     <Compile Include="Gsm_Visual.cs" />
     <Compile Include="HelperClass.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="Raw_Visual.cs" />
     <Compile Include="Sql.cs" />
     <Compile Include="Timer.cs" />
     <Page Include="MainWindow.xaml">
@@ -107,6 +113,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\inbox_icon-icons.com_72325.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\outbox_icon-icons.com_72302.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\server_icon-icons.com_72284.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\signal_icon-icons.com_72281.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\System.Data.SQLite.Core.1.0.112.0\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('packages\System.Data.SQLite.Core.1.0.112.0\build\net46\System.Data.SQLite.Core.targets')" />

@@ -114,7 +114,8 @@ namespace MelBox2_4
                         new Action(() => { this.Gsm_ProgressBar_SignalQuality.Value = signalQuality; }));
 
                     //TODO: Wenn signalQuality < 10 Nachricht an Admin
-
+                    if (signalQuality < 10)                    
+                        Messages.Create_SignalQuality(signalQuality);                    
                 }
                 finally
                 {
@@ -123,6 +124,7 @@ namespace MelBox2_4
                 }
             }
         }
+
 
         private void Gsm_Button_ReadSmsFromId_Click(object sender, RoutedEventArgs e)
         {

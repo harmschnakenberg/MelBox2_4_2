@@ -32,6 +32,11 @@
         </Menu>
 
         <TabControl Grid.Row="1">
+            <TabItem Header="Übersicht">
+                <Grid>
+                    
+                </Grid>
+            </TabItem>
             <TabItem Header="Modem">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -98,11 +103,36 @@
                     </WrapPanel>
                 </Grid>
             </TabItem>
-            
+
+            <TabItem Header="Stammdaten">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ListView Grid.Column="1" x:Name="Master_ListView_Contacts" ItemsSource="{Binding Master_ContactCollection}" />
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Rohdaten">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Letzten"/>
+                        <TextBox x:Name="Raw_TextBox_MaxRows" VerticalContentAlignment="Center" Text="1000"/>
+                        <Label Content="Einträge aus"/>
+                        <ComboBox x:Name="Raw_Combobox_Tabels" SelectionChanged="Raw_Combobox_Tabels_SelectionChanged"/>
+                    </StackPanel>
+                    <ScrollViewer Margin="10" MaxHeight="800">
+                        <DataGrid ItemsSource="{Binding Raw_RawTableShow}" />
+                    </ScrollViewer>
+                </StackPanel>
+            </TabItem>
         </TabControl>
 
         <StatusBar Grid.Row="2">
             <StatusBarItem Content="Status" />
+            
         </StatusBar>
     </Grid>
 </Window>

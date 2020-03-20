@@ -1,7 +1,9 @@
 ﻿using SerialPortListener.Serial;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -40,10 +42,28 @@ namespace MelBox2_4
     public partial class MainWindow : Window
     {
         #region Fields
-     
+        private static readonly Sql _sql = new Sql();
+
+        internal static Sql Sql => _sql;
+        #endregion
+
+        #region Events
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        // Create the OnPropertyChanged method to raise the event
+        // The calling member's name will be used as the parameter.
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+
         #endregion
 
         #region Properties
+
+
 
         #endregion
 
@@ -51,13 +71,19 @@ namespace MelBox2_4
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = this;
 
+            Raw_Combobox_Tabels.ItemsSource = Sql.GetAllTableNames(new string[] { "sqlite_sequence" });
+            
             InitializeSerialPort();
           
             _spManager.StartListening();
 
             StartSignalQualityCheckTimer();
+            
 
+            Log.Write(Log.LogType.General, 2003181727, "Neustart MelBox2");
+            Messages.Create_Startup();
         }
 
         /// <summary>
@@ -69,6 +95,7 @@ namespace MelBox2_4
         {
             _spManager.Dispose();
         }
+
 
 
 
