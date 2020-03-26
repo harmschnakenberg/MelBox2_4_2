@@ -112,17 +112,7 @@ namespace MelBox2_4
         }
 
 
-        public static MessageType SetMessageType(bool recEmail = false, bool recSms = false, bool sentEmail = false, bool sentSms = false)
-        {
-            MessageType type = 0;
 
-            if (recSms) type &= MessageType.RecievedFromSms;        //Empfang von SMS
-            if (sentSms) type &= MessageType.SentToSms;             //Senden an SMS
-            if (recEmail) type &= MessageType.RecievedFromEmail;    //Empgang von Email
-            if (sentEmail) type &= MessageType.SentToEmail;         //Senden an Email 
-
-            return type;
-        }
 
         /// <summary>
         /// Ermittelt KeyWord aus dem Inhalt einer Nachricht
@@ -138,6 +128,20 @@ namespace MelBox2_4
             if (words.Length > 1) keyWord += words[1];
 
             return keyWord.ToLower();
+        }
+
+        internal static bool IsValidEmailAddress(string mailAddress)
+        {
+            System.Text.RegularExpressions.Regex mailIDPattern = new System.Text.RegularExpressions.Regex(@"[\w-]+@([\w-]+\.)+[\w-]+");
+
+            if (!string.IsNullOrEmpty(mailAddress) && mailIDPattern.IsMatch(mailAddress))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

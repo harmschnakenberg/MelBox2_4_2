@@ -8,57 +8,83 @@ namespace MelBox2_4
 {
     public static class Contacts
     {
-        #region Properties
-        public static ulong GsmModemPhoneNumber { get; set; } = 4915142265412;
+        #region Felder
 
-        public static string UnknownName { get; set; } = "_UNBEKANNT_";
+        private static Contact _SmsCenter = null;
+        private static Contact _MelBox2Admin = null;
+        private static Contact _Bereitschaftshandy = null;
+        private static Contact _KreuService = null;
 
-
-        public static IEnumerable<Contact> PermanentSubscribers { get; set; }
 
         #endregion
 
-        public static Contact SmsCenter = new Contact
+        #region Properties
+        //public static ulong GsmModemPhoneNumber { get; set; } = 4915142265412;
+
+        public static string UnknownName { get; } = "_UNBEKANNT_";
+
+        public static IEnumerable<Contact> PermanentSubscribers { get; set; }
+                
+
+        public static Contact SmsCenter
         {
-            Id = 0,
-            Name = "SMSZentrale",
-            CompanyId = 1,
-            Email = new System.Net.Mail.MailAddress("smszentrale@kreutztraeger.de", SmsCenter.Name),
-            Phone = GsmModemPhoneNumber,
-            KeyWord = SmsCenter.Name,
-            ContactType = MessageType.SentToEmail
-        };
+            get
+            {
+                if (_SmsCenter == null)
+                    _SmsCenter = MainWindow.Sql.GetContactFromDb(0); //siehe Sql.CreateNewDataBase()
+                return _SmsCenter;
+            }
+        }
 
-        public static Contact MelBox2Admin { get; } = new Contact()
+        public static Contact MelBox2Admin
         {
-            Id = 0,
-            Name = "MelBox2Admin",
-            CompanyId = 1,
-            Email = new System.Net.Mail.MailAddress("harm.schnakenberg@kreutztraeger.de", SmsCenter.Name),
-            Phone = 4915142265412,
-            ContactType = MessageType.SentToEmail
-        };
+            get
+            {
+                if (_MelBox2Admin == null)
+                    _MelBox2Admin = MainWindow.Sql.GetContactFromDb(1); //siehe Sql.CreateNewDataBase()
+                return _MelBox2Admin;
+            }
+        }
 
-        public static Contact Bereitschaftshandy { get; } = new Contact()
+        public static Contact Bereitschaftshandy
         {
-            Id = 0,
-            Name = "Bereitschaftshandy",
-            CompanyId = 1,
-            Email = new System.Net.Mail.MailAddress("bereitschaftshandy@kreutztraeger.de", SmsCenter.Name),
-            Phone = 491728362586,
-            ContactType = MessageType.SentToSms
-        };
+            get
+            {
+                if (_Bereitschaftshandy == null)
+                {
+                    Sql sql = new Sql();
+                    _Bereitschaftshandy = sql.GetContactFromDb(2); //siehe Sql.CreateNewDataBase()
+                }
+                return _Bereitschaftshandy;
+            }
+        }
 
-        public static Contact KreuService { get; } = new Contact()
+        public static Contact KreuService
         {
-            Id = 0,
-            Name = "Kreutzträger Service",
-            CompanyId = 1,
-            Email = new System.Net.Mail.MailAddress("service@kreutztraeger.de", SmsCenter.Name),
-            Phone = 0,
-            ContactType = MessageType.SentToEmail
-        };
+            get
+            {
+                if (_KreuService == null)
+                    _KreuService = MainWindow.Sql.GetContactFromDb(3); //siehe Sql.CreateNewDataBase()
+                return _KreuService;
+            }
+        }
 
+        #endregion
 
+        #region Methods
+
+        public static MessageType SetMessageType(bool recEmail = false, bool recSms = false, bool sentEmail = false, bool sentSms = false)
+        {
+            MessageType type = 0;
+
+            if (recSms) type &= MessageType.RecievedFromSms;        //Empfang von SMS
+            if (sentSms) type &= MessageType.SentToSms;             //Senden an SMS
+            if (recEmail) type &= MessageType.RecievedFromEmail;    //Empgang von Email
+            if (sentEmail) type &= MessageType.SentToEmail;         //Senden an Email 
+
+            return type;
+        }
+
+        #endregion
     }
 }

@@ -3,45 +3,49 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace MelBox2_4
 {
-    public static class Log
+    public partial class MainWindow : Window
     {
        
-        public enum LogType
+        public enum Topic
         {
             General,
             Contacts,
             Calendar,
             Email,
             SMS,
-            Internal
+            Internal,
+            SQL
+        }
+
+        public enum Prio
+        {
+            Unbekannt,
+            Fehler,
+            Warnung,
+            Info
         }
 
         #region Felder
+
         
-        private static readonly string TextLogPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Log", string.Format("Log{0:000}.txt", DateTime.Now.DayOfYear));
         #endregion
 
-        public static void Write(LogType type, ulong contentId, string content)
+        public static void Log(Topic topic, Prio prio, ulong contentId, string content)
         {
-                Sql sql = new Sql();
-                sql.CreateLogEntry(type.ToString(), contentId, content);
-        }
-
-        public static bool IsBitSet(int b, int pos)
-        {
-            return (b & (1 << pos)) != 0;
-        }
-
-        public static void Text(LogType type, string message)
-        {
-
-            using (System.IO.StreamWriter file = System.IO.File.AppendText(TextLogPath))
+            switch (prio)
             {
-                file.WriteLine(DateTime.Now.ToShortTimeString() + " - " + type + " - " + message);
+                case Prio.Fehler:
+                case Prio.Warnung:
+                    MainWindow.ErrorCount++;
+                    break;
             }
+
+            Sql sql = new Sql();
+            sql.CreateLogEntry(topic, prio, contentId, content);
         }
 
     }

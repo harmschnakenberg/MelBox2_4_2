@@ -140,9 +140,9 @@ namespace MelBox2_4
                 //if (configVal != null)
                 //    Print.PrintFileExtention = configVal;
 
-                configVal = TagValueFromConfig(dict, "GsmModemPhoneNumber");
-                if (configVal != null)
-                    Contacts.GsmModemPhoneNumber = HelperClass.ConvertStringToPhonenumber(configVal);
+                //configVal = TagValueFromConfig(dict, "GsmModemPhoneNumber");
+                //if (configVal != null)
+                //    Contacts.GsmModemPhoneNumber = HelperClass.ConvertStringToPhonenumber(configVal);
                     
 
             }

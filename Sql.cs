@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -47,7 +48,7 @@ namespace MelBox2_4
 
                 List<String> TableCreateQueries = new List<string>
                     {
-                        "CREATE TABLE \"Log\"(\"ID\" INTEGER NOT NULL PRIMARY KEY UNIQUE,\"Time\" INTEGER NOT NULL, \"Type\" TEXT , \"ContentNo\" INTEGER NOT NULL, \"Content\" TEXT);",
+                        "CREATE TABLE \"Log\"(\"ID\" INTEGER NOT NULL PRIMARY KEY UNIQUE,\"Time\" INTEGER NOT NULL, \"Topic\" TEXT , \"Prio\" INTEGER NOT NULL, \"ContentNo\" INTEGER NOT NULL, \"Content\" TEXT);",
 
                         "CREATE TABLE \"Company\" (\"ID\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"Name\" TEXT NOT NULL, \"Address\" TEXT, \"ZipCode\" INTEGER,\"City\" TEXT); ",
 
@@ -58,18 +59,17 @@ namespace MelBox2_4
                         "CREATE TABLE \"Contact\"(\"ID\" INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, \"Time\" INTEGER NOT NULL, \"Name\" TEXT NOT NULL, " +
                         "\"CompanyID\" INTEGER, \"Email\" TEXT, \"Phone\" INTEGER, \"KeyWord\" TEXT, \"MaxInactiveHours\" INTEGER, \"SendWay\" INTEGER );",
 
-                       // "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"MessageType\" ) VALUES (0, " + HelperClass.ConvertToUnixTime(DateTime.Now.ToUniversalTime()) + ", '" + MainWindow.SmsCenter.Name + "', 1, '" + MainWindow.SmsCenter.Email.Address + "', " + MainWindow.SmsCenter.Phone + "," + (ushort)MainWindow.SmsCenter.ContactType + ");",
-                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"MessageType\" ) VALUES (0, " + Contacts.Bereitschaftshandy.GetType().GetProperties().ToArray().ToString() + ");",
+                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"SendWay\" ) VALUES (1, " + HelperClass.ConvertToUnixTime(DateTime.Now) + ", 'SMSZentrale', 1, 'smszentrale@kreutztraeger.de', 4915142265412," + (ushort)MessageType.NoCategory + ");",
+                        
+                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"SendWay\" ) VALUES (2, " + HelperClass.ConvertToUnixTime(DateTime.Now) + ", 'MelBox2Admin', 1, 'harm.schnakenberg@kreutztraeger.de', 0," + (ushort)MessageType.SentToEmail + ");",
 
-                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"MessageType\" ) VALUES (1, " + HelperClass.ConvertToUnixTime(DateTime.Now) + ", '" + Contacts.MelBox2Admin.Name + "', 1, '" + Contacts.MelBox2Admin.Email.Address + "', " + Contacts.MelBox2Admin + "," + (ushort)Contacts.MelBox2Admin.ContactType + ");",
+                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"SendWay\" ) VALUES (3, " + HelperClass.ConvertToUnixTime(DateTime.Now) + ", 'Bereitschaftshandy', 1, 'bereitschaftshandy@kreutztraeger.de', 491728362586," + (ushort)MessageType.SentToSms + ");",
 
-                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"MessageType\" ) VALUES (2, " + HelperClass.ConvertToUnixTime(DateTime.Now) + ", '" + Contacts.Bereitschaftshandy.Name + "', 1, " + Contacts.Bereitschaftshandy.Email.Address +", " + Contacts.Bereitschaftshandy.Phone + "," + (ushort)Contacts.Bereitschaftshandy.ContactType + ");",
+                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"SendWay\" ) VALUES (4, " + HelperClass.ConvertToUnixTime(DateTime.Now) + ", 'Kreutzträger Service', 1, 'service@kreutztraeger.de', 0," +  (ushort)MessageType.SentToEmail + ");",
 
-                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"MessageType\" ) VALUES (3, " + HelperClass.ConvertToUnixTime(DateTime.Now) + ", '" + Contacts.KreuService.Name + "', 1, '" + Contacts.KreuService.Email.Address + "', 0," + (ushort)Contacts.KreuService.ContactType + ");",
+                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"SendWay\" ) VALUES (5, " + HelperClass.ConvertToUnixTime(DateTime.Now) + ", 'Henry Kreutzträger', 1, 'henry.kreutztraeger@kreutztraeger.de', 491727889419," + (ushort)(MessageType.SentToEmail & MessageType.SentToSms) + ");",
 
-                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"MessageType\" ) VALUES (4, " + HelperClass.ConvertToUnixTime(DateTime.Now) + ", 'Henry Kreutzträger', 1, 'henry.kreutztraeger@kreutztraeger.de', 491727889419," + (ushort)(MessageType.SentToEmail & MessageType.SentToSms) + ");",
-
-                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"MessageType\" ) VALUES (5, " + HelperClass.ConvertToUnixTime(DateTime.Now) + ", 'Bernd Kreutzträger', 1, 'bernd.kreutztraeger@kreutztraeger.de', 491727875067," + (ushort)(MessageType.SentToEmail & MessageType.SentToSms) + ");",
+                        "INSERT INTO \"Contact\" (\"ID\", \"Time\", \"Name\", \"CompanyID\", \"Email\", \"Phone\", \"SendWay\" ) VALUES (6, " + HelperClass.ConvertToUnixTime(DateTime.Now) + ", 'Bernd Kreutzträger', 1, 'bernd.kreutztraeger@kreutztraeger.de', 491727875067," + (ushort)(MessageType.SentToEmail & MessageType.SentToSms) + ");",
                         
                         //Tabelle MessageTypes wird z.Zt. nicht verwendet! Dient als Dokumentation für die BitCodierung von MessageType.
                         "CREATE TABLE \"MessageType\" (\"ID\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"Description\" TEXT NOT NULL);",
@@ -94,10 +94,10 @@ namespace MelBox2_4
                         "CREATE TABLE \"Shifts\"( \"ID\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"EntryTime\" INTEGER NOT NULL, " +
                         "\"ContactID\" INTEGER NOT NULL, \"StartTime\" INTEGER NOT NULL, \"EndTime\" INTEGER NOT NULL, \"SendType\" INTEGER NOT NULL );",
 
-                        "CREATE TABLE \"BlockedMessages\"( \"MessageID\" INTEGER NOT NULL UNIQUE, \"StartHour\" INTEGER NOT NULL, " +
+                        "CREATE TABLE \"BlockedMessages\"( \"ID\" INTEGER NOT NULL UNIQUE, \"StartHour\" INTEGER NOT NULL, " +
                         "\"EndHour\" INTEGER NOT NULL, \"WorkdaysOnly\" INTEGER NOT NULL CHECK (\"WorkdaysOnly\" < 2));" +
 
-                        "INSERT INTO \"BlockedMessages\" (\"MessageID\", \"StartHour\", \"EndHour\", \"WorkdaysOnly\" ) VALUES " +
+                        "INSERT INTO \"BlockedMessages\" (\"ID\", \"StartHour\", \"EndHour\", \"WorkdaysOnly\" ) VALUES " +
                         "(1,8,8,0);"
 
                 };
@@ -141,12 +141,22 @@ namespace MelBox2_4
                         }
                     }
 
-
                     var da = new SQLiteDataAdapter(cmd);
-
                     var dt = new DataTable();
-                    da.Fill(dt);
-                    da.Dispose();
+
+                    try
+                    {
+                        da.Fill(dt);
+                    }
+                    catch (Exception ex)
+                    {
+                        MainWindow.Log(MainWindow.Topic.SQL, MainWindow.Prio.Warnung, 2003221804, "SQL-Fehler in " + query + " | " + ex.Message);
+                    }
+                    finally
+                    {
+                        da.Dispose();
+                    }
+
                     return dt;
                 }
             }
@@ -186,7 +196,7 @@ namespace MelBox2_4
             catch (Exception ex)
             {
                 //nichts unternehmen
-                Log.Write(Log.LogType.Internal, 2003181644, "Schreiben in SQL-Datenbank fehlgeschlagen. " + query + " | " + ex.Message);
+                MainWindow.Log(MainWindow.Topic.Internal, MainWindow.Prio.Fehler, 2003181644, "Schreiben in SQL-Datenbank fehlgeschlagen. " + query + " | " + ex.Message);
             }
 
             return numberOfRowsAffected;
@@ -230,12 +240,13 @@ namespace MelBox2_4
             string query = "SELECT ID FROM \"" + tableName + "\" WHERE " + where + " ORDER BY ID DESC LIMIT 1";
 
             DataTable dt = ExecuteRead(query, null);
+            if (dt.Rows.Count == 0) return 0;
+
             string idString = dt.AsEnumerable().Select(x => x[0].ToString()).ToList().First();
             uint.TryParse(idString, out uint lastId);
 
             return lastId;
         }
-
 
         /// <summary>
         /// Liest die letzten Einträge in der angegebenen Tabelle.
@@ -245,14 +256,9 @@ namespace MelBox2_4
         /// <param name="numberOfRows"></param>
         /// <returns></returns>
         public DataTable GetLastEntries(string tableName, string sortingColName, int numberOfRows)
-        {
-            var args1 = new Dictionary<string, object>
-            {
-                {"@tableName", tableName}
-            };
-
-            string query = "PRAGMA table_info(@tableName)";
-            DataTable dt = ExecuteRead(query, args1);
+        {         
+            string query = "PRAGMA table_info(" + tableName + ")";
+            DataTable dt = ExecuteRead(query, null); //args erzeugt SQLLogicError
             List<string> s = dt.AsEnumerable().Select(x => x["name"].ToString()).ToList();
 
             string cols = string.Empty;
@@ -269,20 +275,81 @@ namespace MelBox2_4
                 }
             }
 
-            var args2 = new Dictionary<string, object>
-            {
-                {"@cols", cols},
-                {"@tableName", tableName},
-                {"@sortingColName", sortingColName},
-                {"@numberOfRows", numberOfRows}
-            };
+            query = "SELECT " + cols +" FROM " + tableName + " ORDER BY " + sortingColName + " DESC LIMIT " + numberOfRows;
 
-
-            query = "SELECT @cols FROM @tableName ORDER BY @sortingColName DESC LIMIT @numberOfRows";
-
-            return ExecuteRead(query, args2);
+            return ExecuteRead(query, null); //args erzeugt SQLLogicError
         }
 
+        ///// <summary>
+        ///// List eine LIste aus der Splate colName aus.
+        ///// </summary>
+        ///// <param name="tableName">Name der Tabelle.</param>
+        ///// <param name="colName">Name der abzufragenden Spalte.</param>
+        ///// <param name="where">(optional) Einschränkende Bedingung.</param>
+        ///// <returns></returns>
+        //public IEnumerable<string> GetListFromColumn(string tableName, string colName, string where = "1=1")
+        //{
+        //    string query = "SELECT " + colName + " FROM " + tableName + " WHERE " + where;
+
+        //    DataTable dt = ExecuteRead(query, null);
+        //    List<string> s = dt.AsEnumerable().Select(x => x[0].ToString()).ToList();
+
+        //    return s;
+        //}
+
+        internal Dictionary<string, object> GetRowValues(string query, Dictionary<string, object> args)
+        {
+            DataTable dt = ExecuteRead(query, args);
+
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+
+            if (dt.Rows.Count > 0)
+            {
+                foreach (DataColumn col in dt.Columns)
+                {
+                    dict.Add(col.ColumnName, dt.Rows[0][col.ColumnName]);
+                }
+            }
+            return dict;
+        }
+
+        public ObservableCollection<Contact> GetContacts(string where = "1=1")
+        {
+            string query = "SELECT ID, Name, CompanyID, Email, Phone, MaxInactiveHours, SendWay FROM Contact WHERE " + where;
+
+            DataTable dt = ExecuteRead(query, null);
+
+            if (dt.Rows.Count == 0) return null;
+
+            ObservableCollection<Contact> contactList = new ObservableCollection<Contact>();
+
+            foreach (DataRow row in dt.Rows)
+            {
+
+                System.Net.Mail.MailAddress email = null;
+                
+                if (HelperClass.IsValidEmailAddress(row[3].ToString())) 
+                    email = new System.Net.Mail.MailAddress(row[3].ToString(), row[1].ToString());
+
+                ushort.TryParse(row[5].ToString(), out ushort inactiveMax);
+
+                Contact contact = new Contact
+                {
+                    Id = uint.Parse(row[0].ToString()),
+                    Name = row[1].ToString(),
+                    CompanyId = uint.Parse(row[2].ToString()),
+                    Email = email,
+                    PhoneString = row[4].ToString(),
+                    MaxInactiveHours = inactiveMax,
+                    ContactType = (MessageType)ushort.Parse(row[6].ToString())                    
+                };
+
+                
+                contactList.Add(contact);
+            }
+
+            return contactList;
+        }
 
         #endregion
 
@@ -292,14 +359,15 @@ namespace MelBox2_4
         /// Schreibt einen neuen Eintrag in die Tabelle 'Log'.
         /// </summary>
         /// <param name="message"></param>
-        internal void CreateLogEntry(string type, ulong contentNo, string content)
+        internal void CreateLogEntry(MainWindow.Topic topic, MainWindow.Prio prio, ulong contentNo, string content)
         {
-            const string query = "INSERT INTO Log(Time, Type, ContentNo, Content) VALUES (@timeStamp, @type, @contentNo, @content)";
+            const string query = "INSERT INTO Log(Time, Topic, Prio, ContentNo, Content) VALUES (@timeStamp, @topic, @prio, @contentNo, @content)";
 
             var args = new Dictionary<string, object>
             {
                 {"@timeStamp", HelperClass.ConvertToUnixTime( DateTime.Now ) },
-                {"@type", type},
+                {"@topic", topic.ToString() },
+                {"@prio", (ushort)prio},
                 {"@contentNo", contentNo},
                 {"@content", content}
             };
@@ -326,6 +394,100 @@ namespace MelBox2_4
             return s;
         }
 
+        internal Company GetCompanyFromDb(uint companyId)
+        {
+            Company company = new Company();
+
+            const string query = "SELECT Name, Address, ZipCode, City FROM Company WHERE ID = @Id";
+
+            var args = new Dictionary<string, object>
+            {
+                {"@Id", companyId}
+            };
+
+            DataTable dt = ExecuteRead(query, args);
+
+            if (dt.Rows.Count == 0)
+            {
+                MainWindow.Log(MainWindow.Topic.SQL, MainWindow.Prio.Warnung, 2003251227, "Keine Firmeninformationen in DB für ID >" + companyId + "<");
+                return company;
+            }
+
+            uint.TryParse(dt.Rows[0][2].ToString(), out uint zipCode);
+
+            company.Id = companyId;
+            company.Name = dt.Rows[0][0].ToString();
+            company.Address = dt.Rows[0][1].ToString();
+            company.ZipCode = zipCode;
+            company.City = dt.Rows[0][3].ToString();
+
+            return company;
+        }
+
+        internal Company GetCompanyFromDb(string companyName)
+        {
+            Company company = new Company();
+
+            const string query = "SELECT ID, Address, ZipCode, City FROM Company WHERE Name = @name";
+
+            var args = new Dictionary<string, object>
+            {
+                {"@Name", companyName}
+            };
+
+            DataTable dt = ExecuteRead(query, args);
+
+            if (dt.Rows.Count == 0)
+            {
+                MainWindow.Log(MainWindow.Topic.SQL, MainWindow.Prio.Warnung, 2003251242, "Keine Firmeninformationen in DB für Firmennamen >" + companyName + "<");
+                return company;
+            }
+
+            uint.TryParse(dt.Rows[0][0].ToString(), out uint companyId);
+            uint.TryParse(dt.Rows[0][2].ToString(), out uint zipCode);
+
+            company.Id = companyId;
+            company.Name = companyName;
+            company.Address = dt.Rows[0][1].ToString();
+            company.ZipCode = zipCode;
+            company.City = dt.Rows[0][3].ToString();
+
+            return company;
+        }
+
+        public ObservableCollection<Company> GetCompanies(string where = "1=1")
+        {
+            string query = "SELECT ID, Name, Address, ZipCode, City FROM Company WHERE " + where;
+
+            DataTable dt = ExecuteRead(query, null);
+
+            if (dt.Rows.Count == 0) return null;
+
+            ObservableCollection<Company> companyList = new ObservableCollection<Company>();
+
+            foreach (DataRow row in dt.Rows)
+            {
+
+                uint.TryParse(row[0].ToString(), out uint companyId);
+                uint.TryParse(row[3].ToString(), out uint zipCode);
+
+                Company company= new Company
+                {
+                    Id = companyId,
+                    Name = row[1].ToString(),
+                    Address = row[2].ToString(),
+                    ZipCode = zipCode,
+                    City = row[4].ToString()
+                };
+
+
+                companyList.Add(company);
+            }
+
+            return companyList;
+        }
+
+
         /// <summary>
         /// Erzeugt einen neuen Eintrag in der Firmentabelle.
         /// </summary>
@@ -348,7 +510,7 @@ namespace MelBox2_4
 
             ExecuteWrite(query, args);
 
-            return GetLastId("Companies");
+            return GetLastId("Company");
         }
 
         /// <summary>
@@ -397,7 +559,6 @@ namespace MelBox2_4
 
         #region SQL Contacts
 
-
         /// <summary>
         /// Fügt eine neue Person (Nutzer) in die Datenbank ein
         /// und gibt die ID des Eintrags wieder.
@@ -427,7 +588,7 @@ namespace MelBox2_4
 
             #region Email-Benachrichtigung "neue unbekannte Telefonnummer / Emailadresse"
 
-            Messages.Create_NewUnknownContact(message, lastId, keyWord);
+            Messages.Create_NewUnknownContactMessage(message, lastId, keyWord);
 
 
             #endregion
@@ -435,8 +596,281 @@ namespace MelBox2_4
             return lastId;
         }
 
+        //internal uint CreatePerson(string Name, string companyName, string email, string cellphone, string keyword, string maxinactive, MessageType role)
+        //{
+        //    //Schreibe/Aktualisiere Person in DB
+        //    const string queryCreate = "INSERT INTO Contact (Time, Name, CompanyID, Cellphone, Email, KeyWord, MaxInactiveHours, SendWay ) " +
+        //                                "VALUES ( @UnixTimeStamp, @Name, @CompanyId, @Cellphone, @Email, @KeyWord, @MaxInactive, @MessageType )";
+
+        //    ulong unixTimeStamp = HelperClass.ConvertToUnixTime(DateTime.Now);
+
+        //    uint CompanyId = GetIdFromEntry("Companies", "Name", companyName);
+
+        //    ulong phonenumber = HelperClass.ConvertStringToPhonenumber(cellphone);
+
+        //    if (!HelperClass.IsValidEmailAddress(email))
+        //    {
+        //        email = null;
+        //    }
+
+        //    if (!int.TryParse(maxinactive, out int maxInactiveInt))
+        //    {
+        //        maxInactiveInt = 0;
+        //    }
 
 
+        //    Dictionary<string, object> args = new Dictionary<string, object>()
+        //    {
+        //            {"@UnixTimeStamp", unixTimeStamp },
+        //            {"@Name", Name},
+        //            {"@CompanyId", CompanyId},
+        //            {"@Cellphone", phonenumber},
+        //            {"@Email", email},
+        //            {"@KeyWord", keyword},
+        //            {"@MaxInactive", maxInactiveInt},
+        //            {"@MessageType", (uint)role}
+        //    };
+
+        //    ExecuteWrite(queryCreate, args);
+
+        //    return GetLastId("Persons", "UnixTimeStamp = " + unixTimeStamp);
+        //}
+
+
+        //internal uint GetContactId(Message message)
+        //{
+        //    string email = message.EMail;
+        //    string keyWord = message.CustomerKeyWord;
+
+        //    if (email == null) email = String.Empty;
+        //    if (keyWord == null) keyWord = String.Empty;
+
+        //    Dictionary<string, object> personArgs = new Dictionary<string, object>
+        //    {
+        //        { "@phoneNumber", message.Cellphone },
+        //        { "@email",  email.ToLower() },
+        //        { "@keyWord", keyWord.ToLower() }
+        //    };
+
+
+        //    DataTable senderIDTable = ExecuteRead("SELECT \"ID\" FROM \"Persons\" WHERE " +
+        //                                            "( \"Cellphone\" > 0 AND \"Cellphone\" = @phoneNumber ) " +
+        //                                            "OR ( length(\"KeyWord\") > 2 AND \"KeyWord\" = @keyWord ) " +
+        //                                            "OR ( length(\"Email\") > 5 AND \"Email\" = @email )", personArgs);
+        //    // Keine passende Person gefunden:
+        //    if (senderIDTable.Rows.Count < 1)
+        //    {
+        //        Log.Write(Log.Type.Persons, string.Format("Kein Eintrag gefunden. Neue Person wird angelegt mit >{0}<, >{1}<, >{2}<", message.CustomerKeyWord, message.EMail, message.Cellphone));
+        //        return CreatePerson(message);
+        //    }
+        //    else if (senderIDTable.Rows.Count > 1)
+        //    {
+        //        string entries = string.Empty;
+        //        foreach (string item in senderIDTable.AsEnumerable().Select(x => x[0].ToString()).ToList())
+        //        {
+        //            entries += item + ",";
+        //        }
+        //        Log.Write(Log.Type.Persons, string.Format("Es gibt meherer Einträge für eine Person mit KeyWord >{0}<, Email >{1}<, Mobilnummer >{2}< \r\nPersonen-IDs: {3}", message.CustomerKeyWord, message.EMail, message.Cellphone, entries));
+        //    }
+        //    else
+        //    {
+        //        Log.Write(Log.Type.Persons, string.Format("Es gibt genau einen Eintrag für Keyword >{0}<, Email >{1}<, Mobilnummer >{2}<", message.CustomerKeyWord, message.EMail, message.Cellphone));
+        //    }
+
+        //    string idString = senderIDTable.AsEnumerable().Select(x => x[0].ToString()).ToList().First();
+
+        //    if (!uint.TryParse(idString, out uint senderId))
+        //    {
+        //        Log.Write(Log.Type.Persons, "Der Eintrag >" + idString + "< konnte nicht als ID für eine Person interpretiert werden.");
+        //        return CreatePerson(message);
+        //    }
+
+        //    return senderId;
+        //}
+
+
+        /// <summary>
+        /// Sucht Einträge mit mindestens einer Übereinstimmung der angegebenen Kontaktdaten.
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="phone"></param>
+        /// <param name="keyWord"></param>
+        /// <returns></returns>
+        internal uint GetContactId(string personName, string email, ulong phone, string keyWord)
+        {
+
+            Dictionary<string, object> personArgs = new Dictionary<string, object>
+            {
+                { "@name", personName },
+                { "@phoneNumber", phone },
+                { "@email",  email },
+                { "@keyWord", keyWord }
+            };
+
+            DataTable senderIDTable = ExecuteRead("SELECT \"ID\" FROM \"Contact\" WHERE " +
+                                                    "( \"Name\" IS NOT NULL AND \"Name\" = @name ) " +
+                                                    "OR ( \"Phone\" > 0 AND \"Phone\" = @phoneNumber ) " +
+                                                    "OR ( length(\"KeyWord\") > 2 AND \"KeyWord\" = @keyWord ) " +
+                                                    "OR ( length(\"Email\") > 5 AND \"Email\" = @email )", personArgs);
+            // Keine passende Person gefunden:
+            if (senderIDTable.Rows.Count < 1)
+            {
+                return 0;
+            }
+
+            if (senderIDTable.Rows.Count > 1)
+            {
+                MainWindow.Log(MainWindow.Topic.Contacts, MainWindow.Prio.Warnung, 2003231133, 
+                    string.Format("Es gibt " + senderIDTable.Rows.Count  + " Einträge für eine Person mit KeyWord >{0}<, Email >{1}<, Mobilnummer >{2}<", keyWord, email, phone));
+            }
+
+            string idString = senderIDTable.AsEnumerable().Select(x => x[0].ToString()).ToList().Last();
+
+            if (!uint.TryParse(idString, out uint senderId))
+            {
+                MainWindow.Log(MainWindow.Topic.Contacts, MainWindow.Prio.Fehler, 2003231136, 
+                    "Der Eintrag >" + idString + "< konnte nicht als ID für einen Kontakt interpretiert werden.");
+                return 0;
+            }
+
+            return senderId;
+        }
+
+        /// <summary>
+        /// Erzeugt eine Instanz der Contact Klasse aus der Datenbank.
+        /// </summary>
+        /// <param name="contactId">Id des Kontakts in der Datenbank</param>
+        /// <returns>Instanz von Contact mit den Einträgen aus der Datenbank</returns>
+        internal Contact GetContactFromDb(uint contactId)
+        {
+            const string query = "SELECT Name, CompanyId, Email, Phone, KeyWord, SendWay FROM Contact WHERE ID = @Id";
+
+            var args = new Dictionary<string, object>
+            {
+                {"@Id", contactId}
+            };
+
+            DataTable result =  ExecuteRead(query, args);
+
+            if (result.Rows.Count == 0) return null;
+
+            Contact contact = new Contact
+            {
+                Id = contactId,
+                Name = result.Rows[0][0].ToString(),
+                CompanyId = uint.Parse(result.Rows[0][1].ToString()),
+                Email = new System.Net.Mail.MailAddress(result.Rows[0][2].ToString(), result.Rows[0][0].ToString()),
+                PhoneString = result.Rows[0][3].ToString(),
+                KeyWord = result.Rows[0][4].ToString(),
+                ContactType = (MessageType)ushort.Parse(result.Rows[0][5].ToString())
+            };
+
+            return contact;
+        }
+
+        /// <summary>
+        /// Legt neuen Kontakt in DB an und gibt dessen ID aus.
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="companyId"></param>
+        /// <param name="email"></param>
+        /// <param name="cellphone"></param>
+        /// <param name="keyword"></param>
+        /// <param name="maxinactive"></param>
+        /// <param name="role"></param>
+        /// <returns>ID des neu erstellten Kontakts</returns>
+        internal uint CreateContact(Contact contact)
+        {            
+            const string queryCreate = "INSERT INTO Contact ( Time, Name, CompanyID, Email, Phone, KeyWord, MaxInactiveHours, SendWay ) " +
+                                        "VALUES ( @Time, @Name, @CompanyId, @Email, @Phone, @KeyWord, @MaxInactiveHours, @SendWay )";
+
+            ulong unixTimeStamp = HelperClass.ConvertToUnixTime(DateTime.Now);
+
+            Dictionary<string, object> args = new Dictionary<string, object>()
+            {
+                    {"@Time", unixTimeStamp },
+                    {"@Name", contact.Name},
+                    {"@CompanyId", contact.CompanyId},
+                    {"@Phone", contact.Phone},
+                    {"@Email", contact.Email},
+                    {"@KeyWord", contact.KeyWord},
+                    {"@MaxInactiveHours", contact.MaxInactiveHours},
+                    {"@SendWay", (uint)contact.ContactType}
+            };
+
+            int affectedRows = ExecuteWrite(queryCreate, args);
+
+            if (affectedRows == 0)
+            {
+                MainWindow.Log(MainWindow.Topic.SQL, MainWindow.Prio.Fehler, 2003241204, "Der Kontakt mit dem Namen >" + contact.Name + "< konnte nicht in der Datenbank erstellt werden.");
+                return 0;
+            }
+
+            return GetLastId("Contact", "Time = " + unixTimeStamp);
+        }
+
+        /// <summary>
+        /// Verändert einen bestenhenden Kontakt in der Datenbank
+        /// </summary>
+        /// <param name="contact"></param>
+        /// <returns>true = es wurde genau eine Zeile in der Datenbank geändert.</returns>
+        internal bool UpdateContact(Contact contact)
+        {
+            const string queryUpdate =  "UPDATE Contact SET  " +
+                                        "Time = @UnixTimeStamp, " +
+                                        "Name = @Name, " +
+                                        "CompanyID = @CompanyId, " +
+                                        "Phone = @Phone, " +
+                                        "Email = @Email, " +
+                                        "KeyWord = @KeyWord," +
+                                        "MaxInactiveHours = @MaxInactiveHours, " +
+                                        "SendWay = @SendWay " +
+                                        "WHERE ID = @Id";
+
+            ulong unixTimeStamp = HelperClass.ConvertToUnixTime(DateTime.Now);
+
+            Dictionary<string, object> args = new Dictionary<string, object>()
+            {
+                    {"@UnixTimeStamp", unixTimeStamp },
+                    {"@Name", contact.Name},
+                    {"@CompanyId", contact.CompanyId},
+                    {"@Phone", contact.Phone},
+                    {"@Email", contact.Email},
+                    {"@KeyWord", contact.KeyWord},
+                    {"@MaxInactiveHours", contact.MaxInactiveHours},
+                    {"@SendWay", (uint)contact.ContactType},
+                    {"@Id", contact.Id }
+            };
+
+            bool ok = (ExecuteWrite(queryUpdate, args) == 1);
+
+            if (!ok) MainWindow.Log(MainWindow.Topic.SQL, MainWindow.Prio.Fehler, 2003241833, 
+                "Der Kontakt mit dem Namen >" + contact.Name + "< konnte nicht in der Datenbank geändert werden.");
+
+            return ok;
+        }
+
+        /// <summary>
+        /// Löscht einen bestenhenden Kontakt in der Datenbank
+        /// </summary>
+        /// <param name="contact"></param>
+        /// <returns>true = es wurde genau eine Zeile in der Datenbank gelöscht.</returns>
+        internal bool DeleteContact(Contact contact)
+        {
+            string query = "DELETE FROM \"Contact\" WHERE ID = @ID ;";
+
+            Dictionary<string, object> args = new Dictionary<string, object>
+            {
+                { "@ID", contact.Id }
+            };
+
+            bool ok = (ExecuteWrite(query, args) == 1);
+
+            if (!ok) MainWindow.Log(MainWindow.Topic.SQL, MainWindow.Prio.Fehler, 2003241835,
+                "Der Kontakt mit dem Namen >" + contact.Name + "< konnte nicht aus der Datenbank gelöscht werden.");
+
+            return ok;
+        }
 
         #endregion
 
@@ -466,7 +900,11 @@ namespace MelBox2_4
                     {"@SendType", (int)sendingType},
             };
 
-            ExecuteWrite(query, args);
+            int affectedRows = ExecuteWrite(query, args);
+
+            if (affectedRows == 0) 
+                MainWindow.Log(MainWindow.Topic.SQL, MainWindow.Prio.Fehler, 2003221749, 
+                    "Für Contact-ID [" + contactId + "] konnt keine neue Bereitschaft in die Datenbank eingetragen werden.");
 
             return GetLastId("Shifts", "EntryTime = " + entryTime);
         }
@@ -478,9 +916,6 @@ namespace MelBox2_4
         /// <returns>ID der neu erstellten Schicht.</returns>
         internal uint CreateShiftDefault(Contact contact)
         {
-            //uint bereitschaftId = GetIdFromEntry("Persons", "Name", GuardName);
-            //MessageType type = (MessageType)int.Parse(GetFirstEntryFromColumn("Persons", "MessageType", "Name = '" + GuardName + "'"));
-
             if (contact.Id < 1) return 0; 
             //TODO: Kontakt mit Datenbankinhalt validieren 
 
@@ -506,7 +941,8 @@ namespace MelBox2_4
 
             DateTime StartTime = date.AddHours(startHour);
             DateTime EndTime = date.AddDays(1).AddHours(HelperClass.NightShiftEndHour);
-            Log.Write(Log.LogType.Calendar, 987654367, "Habe automatische Standardschicht erstellt von " + StartTime.ToString("dd.MM.yyyy HH:mm") + " bis " + EndTime.ToString("dd.MM.yyyy HH:mm"));
+            MainWindow.Log(MainWindow.Topic.Calendar, MainWindow.Prio.Info, 987654367, 
+                "Erstelle automatische Bereitschaft von " + StartTime.ToString("dd.MM.yyyy HH:mm") + " bis " + EndTime.ToString("dd.MM.yyyy HH:mm"));
 
             return CreateShift(contact.Id, StartTime, EndTime, contact.ContactType);
         }
@@ -536,7 +972,11 @@ namespace MelBox2_4
                     {"@SendType", (ushort)sendingType}
             };
 
-            ExecuteWrite(query, args);
+            int affectedRows = ExecuteWrite(query, args);
+
+            if (affectedRows == 0)
+                MainWindow.Log(MainWindow.Topic.SQL, MainWindow.Prio.Fehler, 2003221754,
+                    "Die Bereitschaft [" + shiftId + "] konnte in der Datenbank nicht verändert werden.");
         }
 
         /// <summary>
@@ -558,7 +998,11 @@ namespace MelBox2_4
                     {"@SendType", (uint)messageType}
             };
 
-            ExecuteWrite(query, args);
+            int affectedRows = ExecuteWrite(query, args);
+
+            if (affectedRows == 0)
+                MainWindow.Log(MainWindow.Topic.SQL, MainWindow.Prio.Fehler, 2003221757,
+                    "Die Bereitschaft [" + shiftId + "] konnte in der Datenbank nicht verändert werden.");
         }
 
         /// <summary>
@@ -566,17 +1010,21 @@ namespace MelBox2_4
         /// </summary>
         /// <param name="shiftId"></param>
         /// <returns></returns>
-        internal int DeleteShift(uint shiftId)
+        internal void DeleteShift(uint shiftId)
         {
             //nur löschen, wenn mindestens eine Schicht vorhanden
-            string query = "DELETE FROM \"Shifts\" WHERE ID = @ID;";
+            string query = "DELETE FROM \"Shifts\" WHERE ID > 1 AND ID = @ID;";
 
             Dictionary<string, object> args = new Dictionary<string, object>
             {
                 { "@ID", shiftId }
             };
 
-            return ExecuteWrite(query, args);
+            int affectedRows = ExecuteWrite(query, args);
+
+            if (affectedRows == 0)
+                MainWindow.Log(MainWindow.Topic.SQL, MainWindow.Prio.Fehler, 2003221800,
+                    "Die Bereitschaft [" + shiftId + "] konnt in der Datenbank nicht gelöscht werden.");
         }
 
 

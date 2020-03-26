@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,6 +30,8 @@ namespace MelBox2_4
     /// </summary>
     public class Contact
     {
+        private ulong _Phone;
+
         public uint Id { get; set; }
 
         public string Name { get; set; }
@@ -36,12 +40,58 @@ namespace MelBox2_4
 
         public uint CompanyId { get; set; }
 
-        public System.Net.Mail.MailAddress Email { get; set; }
+        public Company Company { get
+            {
+                Sql sql = new Sql();
+                return sql.GetCompanyFromDb(CompanyId);
+            } 
+        }
 
-        public ulong Phone { get; set; }
+        public System.Net.Mail.MailAddress Email { get; set; } 
+        
+        public string EmailAddress { 
+            get => Email?.Address; 
+            set {
+                if (HelperClass.IsValidEmailAddress(value))
+                    Email = new System.Net.Mail.MailAddress(value, Name); 
+            } 
+        }
+
+        public string PhoneString { set { _Phone = HelperClass.ConvertStringToPhonenumber(value); } }
+        public ulong Phone { get => _Phone; set => _Phone = value; }
 
         public MessageType ContactType { get; set; }
 
+        public bool DeliverEmail
+        {
+            get { return (ContactType & MessageType.SentToEmail) == MessageType.SentToEmail; }
+            set
+            {
+
+                ContactType |= MessageType.SentToEmail;
+
+            }
+        }
+
+        public bool DeliverSms { 
+            get { return (ContactType & MessageType.SentToSms) == MessageType.SentToEmail; }
+            set { ContactType |= MessageType.SentToSms;  }
+        }
+
+        public ushort MaxInactiveHours { get; set; }
+    }
+
+    public class Company
+    {
+        public uint Id { get; set; }
+
+        public string Name { get; set; }
+
+        public string Address { get; set; }
+
+        public uint ZipCode { get; set; }
+
+        public string City { get; set; }
     }
 
     public class Message
@@ -71,12 +121,16 @@ namespace MelBox2_4
         public MessageType Status { get; set; }
     }
 
-    public static class Messages
+    public class Messages 
     {
+
+
+
         #region Fields
 
-        private static List<Message> inBox = new List<Message>();
-        private static List<Message> outBox = new List<Message>();
+        private static List<Message> _InBox = new List<Message>();
+        private static List<Message> _OutBox = new List<Message>();
+
 
         #endregion
 
@@ -84,18 +138,38 @@ namespace MelBox2_4
         /// <summary>
         /// Warteschlange der eingegangenen, zu verarbeiteten Nachrichten
         /// </summary>
-        public static List<Message> InBox { get => inBox; set => inBox = value; }
+        public static List<Message> InBox
+        { 
+            get {
+                return _InBox;
+            }
+            set { 
+                _InBox = value;
+                MainWindow.InBoxCount = _InBox.Count;
+            } 
+        }
 
         /// <summary>
         /// Warteschlange der zu sendenden Nachrichten
         /// </summary>
-        public static List<Message> OutBox { get => outBox; set => outBox = value; }
+        public static List<Message> OutBox
+        {
+            get
+            {
+                return _OutBox;
+            }
+            set
+            {
+                _OutBox = value;
+                MainWindow.OutBoxCount = _OutBox.Count;
+            }
+        }
 
         #endregion
 
         #region Methoden
 
-        internal static void Create_SignalQuality(int signalQuality)
+        internal static void Create_SignalQualityMessage(int signalQuality)
         {
             //Mögliche Werte: 2 - 9 marginal, 10 - 14 OK, 15 - 19 Good, 20 - 30 Excellent, 99 = kein Signal
             string signalStrength = "unbekannt";
@@ -136,7 +210,7 @@ namespace MelBox2_4
             Messages.InBox.Add(notification);
         }
 
-        internal static void Create_NewUnknownContact(Message recievedMessage, uint newContactId, string keyWord)
+        internal static void Create_NewUnknownContactMessage(Message recievedMessage, uint newContactId, string keyWord)
         {
             if (recievedMessage is null)
             {
@@ -168,7 +242,7 @@ namespace MelBox2_4
             Messages.InBox.Add(notification);
         }
 
-        internal static void Create_Startup()
+        internal static void Create_StartupMessage()
         {
             
             StringBuilder body = new StringBuilder();

@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.IO;
 using System.Windows;
+using MelBox2_4;
 
 namespace SerialPortListener.Serial
 {
@@ -52,7 +53,12 @@ namespace SerialPortListener.Serial
             set { _currentSerialSettings = value; }
         }
 
-        public SerialPort SerialPort { get { return _serialPort; } }
+        public SerialPort SerialPort { get 
+            {
+                MainWindow.ComIsOpen = _serialPort.IsOpen ? Visibility.Visible : Visibility.Hidden;
+                return _serialPort; 
+            } 
+        }
 
         #endregion
 
@@ -62,7 +68,10 @@ namespace SerialPortListener.Serial
         {
             // if serial port is changed, a new baud query is issued
             if (e.PropertyName.Equals("PortName"))
+            {
+                //MessageBox.Show("Neuer Port: " + e.PropertyName);
                 UpdateBaudRateCollection();
+            }
         }
 
         
@@ -117,6 +126,8 @@ namespace SerialPortListener.Serial
                 // Subscribe to event and open serial port for data
                 _serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPort_DataReceived);
                 _serialPort.Open();
+
+
             }
             catch (IOException ex_io)
             {
@@ -152,7 +163,7 @@ namespace SerialPortListener.Serial
                 object p = _serialPort.BaseStream.GetType().GetField("commProp", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_serialPort.BaseStream);
                 Int32 dwSettableBaud = (Int32)p.GetType().GetField("dwSettableBaud", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(p);
 
-                //_serialPort.Close();
+                _serialPort.Close();
                 _currentSerialSettings.UpdateBaudRateCollection(dwSettableBaud);
             }
             catch (InvalidOperationException ex_invOp)

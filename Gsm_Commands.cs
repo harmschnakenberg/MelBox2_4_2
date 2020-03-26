@@ -18,6 +18,18 @@ namespace MelBox2_4
         private static readonly string TextLogPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Log", string.Format("Log{0:000}.txt", DateTime.Now.DayOfYear));
         #endregion
 
+        #region Methods
+        public SerialPortManager SpManager
+        {
+            get { return _spManager; }
+            set { 
+                _spManager = value;
+                OnPropertyChanged();
+            }
+        }
+
+        #endregion
+
         /// <summary>
         /// Setzt die Eigenschaften für den seriellen Port, Aboniert das Mitschreiben der COM-Port Antworten
         /// </summary>
@@ -38,7 +50,7 @@ namespace MelBox2_4
             Gsm_ComboBox_StopBits.SelectedItem = System.IO.Ports.StopBits.One;
 
             _spManager.NewSerialDataRecieved += new EventHandler<SerialDataEventArgs>(GsmTrafficLogger);
-          //  _spManager.NewSerialDataRecieved += new EventHandler<SerialDataEventArgs>(CheckForIncomingSms);
+            _spManager.NewSerialDataRecieved += new EventHandler<SerialDataEventArgs>(CheckForIncomingSms);
 
         }
 
@@ -88,23 +100,42 @@ namespace MelBox2_4
                 {
                     
                     PortComandExe("AT+CMGR=" + smsId);
-                    MessageBox.Show(smsId.ToString());
-
+                    MessageBox.Show(smsId.ToString());                    
+                    //TODO: Eingegangene SMS in Datenbank schreiben
                 }
                 else
                 {
-                    MessageBox.Show("2003160908 Die Id der SMS konnte nicht ausgelesen werden aus >" + str + "<");
+                    Log(Topic.SMS, Prio.Fehler, 2003221714, "Id der eingegangenen SMS konnte nicht ausgelesen werden aus >" + str + "< ");
                 }
 
             }
         }
 
+        void GetOutgoingSmsStatus(object sender, SerialDataEventArgs e)
+        {
+            string str = Encoding.ASCII.GetString(e.Data);
 
+            //Sendebestätigung für ausgegangene Nachricht ?
+            if (str.Contains("+CMGS:"))
+            {
+
+                if (str.EndsWith("\r\nOK\r\n"))
+                {
+                    MainWindow.OutMsgsSinceStartup++;
+                }
+                else
+                {
+                    Log(Topic.SMS, Prio.Fehler, 2003221729, "Eine SMS konnte nicht versendet werden: " + str);
+                }
+
+                SpManager.NewSerialDataRecieved -= GetOutgoingSmsStatus;
+            }
+        }
 
         /// <summary>
-        /// Schreibt ein AT-Command an das Modem
-        /// </summary>
-        /// <param name="command"></param>
+                /// Schreibt ein AT-Command an das Modem
+                /// </summary>
+                /// <param name="command"></param>
         private void PortComandExe(string command)
         {
             System.IO.Ports.SerialPort port = _spManager.SerialPort;
@@ -121,19 +152,19 @@ namespace MelBox2_4
                 return;
             }
 
-            if ( !port.IsOpen)
-            {
-                //MessageBox.Show("2003110953 Port >" + port.PortName + "< ist nicht offen. Versuche zu öffnen");
-
-                _spManager.SerialPort.Open();
-                System.Threading.Thread.Sleep(500);
-            }
-
-            port.DiscardOutBuffer();
-            port.DiscardInBuffer();
-
             try
             {
+                if (!port.IsOpen)
+                {
+                    MessageBox.Show("2003110953 Port >" + port.PortName + "< ist nicht offen. Versuche zu öffnen");
+
+                    _spManager.SerialPort.Open();
+                    System.Threading.Thread.Sleep(500);
+                }
+
+                port.DiscardOutBuffer();
+                port.DiscardInBuffer();
+
                 _spManager.SerialPort.Write(command + "\r");
                 //MessageBox.Show("PortComandExe(" + command + ")");
             }
@@ -146,5 +177,29 @@ namespace MelBox2_4
         }
 
 
+        public void SendSms(ulong phone, string content)
+        {
+            //Validate Phonenumber
+
+            //Validate Message
+
+
+            string ctrlz = "\u001a";
+
+
+            //Textformatierung setzen
+            PortComandExe("AT+CSCS=\"GSM\"");
+            System.Threading.Thread.Sleep(500);
+
+            //Ereignis abbonieren
+            _spManager.NewSerialDataRecieved += GetOutgoingSmsStatus; 
+                 
+            //senden
+            PortComandExe("AT+CMGS=\"+" + phone + "\"\r");
+            System.Threading.Thread.Sleep(500);
+            PortComandExe(content + ctrlz);
+
+
+        }
     }
 }

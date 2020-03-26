@@ -42,9 +42,9 @@ namespace MelBox2_4
     public partial class MainWindow : Window
     {
         #region Fields
-        private static readonly Sql _sql = new Sql();
+        private static readonly Sql sql = new Sql();
 
-        internal static Sql Sql => _sql;
+        internal static Sql Sql { get => sql; }
         #endregion
 
         #region Events
@@ -58,10 +58,21 @@ namespace MelBox2_4
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
+       
+        public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
+
+        private static void NotifyStaticPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(propertyName));
+        }
+       
 
         #endregion
 
         #region Properties
+
+       
+
 
 
 
@@ -72,18 +83,26 @@ namespace MelBox2_4
         {
             InitializeComponent();
             this.DataContext = this;
-
+           
             Raw_Combobox_Tabels.ItemsSource = Sql.GetAllTableNames(new string[] { "sqlite_sequence" });
             
-            InitializeSerialPort();
-          
+            InitializeSerialPort();      
             _spManager.StartListening();
-
+            
             StartSignalQualityCheckTimer();
             
+            Log(Topic.General, Prio.Info, 2003181727, "Neustart MelBox2");
+            Messages.Create_StartupMessage();
 
-            Log.Write(Log.LogType.General, 2003181727, "Neustart MelBox2");
-            Messages.Create_Startup();
+            Master_ContactCollection = Sql.GetContacts();
+
+            //foreach (Contact contact in Sql.GetContacts())
+            //{
+            //    Master_ContactCollection.Add(contact);
+            //}
+
+            //Master_CompanyCollection = Sql.GetCompanies();
+
         }
 
         /// <summary>
@@ -95,9 +114,6 @@ namespace MelBox2_4
         {
             _spManager.Dispose();
         }
-
-
-
 
 
 

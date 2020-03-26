@@ -52,9 +52,15 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
@@ -62,19 +68,21 @@
 
                     <Label Content="Signalstärke" />
                     <Button Content="Test" Grid.Column="1" x:Name="Gsm_Button_GetSignalQuality" Click="Gsm_Button_GetSignalQuality_Click"/>
-                    <ProgressBar Grid.Column="2" ToolTip="Signalstärke GSM-Netz" 
+                    <ProgressBar Grid.Column="3" ToolTip="Signalstärke GSM-Netz" 
                                  Maximum="31" 
                                  x:Name="Gsm_ProgressBar_SignalQuality" 
                                  Foreground="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Value, Converter={StaticResource ProgressForegroundConverter}}"
                                  />
 
-                    <ScrollViewer Grid.Row="1" Grid.Column="2" Grid.RowSpan="10" x:Name="Gsm_ScrollViewer_SerialPortResponse" VerticalAlignment="Stretch" IsEnabled="True" >
+                    <ScrollViewer Grid.Row="1" Grid.Column="3" Grid.RowSpan="18" x:Name="Gsm_ScrollViewer_SerialPortResponse" VerticalAlignment="Stretch" IsEnabled="True" >
                         <TextBox x:Name="Gsm_TextBox_SerialPortResponse" TextChanged="Gsm_TextBox_SerialPortResponse_TextChanged" />
                     </ScrollViewer>
                     
                     <Label Grid.Row="1" Grid.Column="0"  Content="Port Name" />
-                    <ComboBox Grid.Row="1" Grid.Column="1" x:Name="Gsm_ComboBox_PortName" />
-                    
+                    <Label Grid.Row="1" Grid.Column="0"  Content="offen" HorizontalContentAlignment="Right" Foreground="Green" Visibility="Hidden" />
+                    <ComboBox Grid.Row="1" Grid.Column="1" x:Name="Gsm_ComboBox_PortName" SelectedValue="{Binding SpManager.CurrentSerialSettings.PortName, Mode=TwoWay}" />
+                    <Label Grid.Row="1" Grid.Column="2" Content="{Binding SpManager.CurrentSerialSettings.PortName}" />
+
                     <Label Grid.Row="2" Grid.Column="0" Content="BaudRate" />
                     <ComboBox Grid.Row="2" Grid.Column="1" x:Name="Gsm_ComboBox_BaudRate" />
                     
@@ -87,31 +95,123 @@
                     <Label Grid.Row="5" Grid.Column="0" Content="Stop Bits" />
                     <ComboBox Grid.Row="5" Grid.Column="1" x:Name="Gsm_ComboBox_StopBits" />
 
-                    <Separator Grid.Row="6" Grid.RowSpan="2" Height="5" />
-                    
-                    <Button Grid.Row="7" Content="Lese SMS von ID" x:Name="Gsm_Button_ReadSmsFromId" Click="Gsm_Button_ReadSmsFromId_Click"/>
-                    <TextBox Grid.Row="7" Grid.Column="1" Text="1" x:Name="Gsm_TextBox_ReadSmsId" HorizontalContentAlignment="Center"/>
-                    
-                    <Button Grid.Row="8" Content="Lese alle SMS" x:Name="Gsm_Button_ReadAllSms" Click="Gsm_Button_ReadAllSms_Click"/>
-                    
-                    <Button Grid.Row="9" Content="SMS abonieren" x:Name="Gsm_Button_SubscribeSms" Click="Gsm_Button_SubscribeSms_Click"/>
+                    <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Content="COM-Port initialisieren" x:Name="Gsm_Button_ComPortInitialize" Click="Gsm_Button_ComPortInitialize_Click"/>
+                    <Button Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"  Content="COM-Port schließen" x:Name="Gsm_Button_ComPortDispose" Click="Gsm_Button_ComPortDispose_Click" />
 
-                    <Button Grid.Row="10" Content="SMS senden an:" x:Name="Gsm_Button_SendSms" Click="Gsm_Button_SendSms_Click" />
-                    <TextBox Grid.Row="11" x:Name="Gsm_TextBox_SendSmsTo" Text="+4915195285304" />
-                    <WrapPanel Grid.Row="12" MaxWidth="100">
-                    <TextBox x:Name="Gsm_TextBox_SendSmsContent" Text="Dies ist eine Testnachricht von MelBox2." TextWrapping="Wrap" />
+                    <Separator Grid.Row="10" Grid.ColumnSpan="2" Height="5" />
+
+                    <Button Grid.Row="11" Grid.ColumnSpan="2"  Content="Lese SMS von ID" x:Name="Gsm_Button_ReadSmsFromId" Click="Gsm_Button_ReadSmsFromId_Click"/>
+                    <TextBox Grid.Row="11" Grid.Column="2" Text="1" x:Name="Gsm_TextBox_ReadSmsId" HorizontalContentAlignment="Center"/>
+
+                    <Button Grid.Row="12" Grid.ColumnSpan="2"  Content="Lese alle SMS" x:Name="Gsm_Button_ReadAllSms" Click="Gsm_Button_ReadAllSms_Click"/>
+
+                    <Button Grid.Row="13" Grid.ColumnSpan="2" Content="SMS abonieren" x:Name="Gsm_Button_SubscribeSms" Click="Gsm_Button_SubscribeSms_Click"/>
+
+                    <Button Grid.Row="14" Grid.ColumnSpan="2"  Content="SMS senden an:" x:Name="Gsm_Button_SendSms" Click="Gsm_Button_SendSms_Click" />
+                    <TextBox Grid.Row="15" Grid.ColumnSpan="2"  x:Name="Gsm_TextBox_SendSmsTo" Text="+4915195285304" />
+                    <WrapPanel Grid.Row="16" Grid.ColumnSpan="2">
+                    <TextBox x:Name="Gsm_TextBox_SendSmsContent" Text="Dies ist eine Testnachricht von MelBox2." TextWrapping="Wrap" MaxWidth="150"/>
                     </WrapPanel>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Stammdaten">
+            <TabItem Header="Stammdaten" x:Name="Master_TabItem" PreviewMouseDown="Master_TabItem_PreviewMouseDown">
                 <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="2*" />
                     </Grid.ColumnDefinitions>
 
-                    <ListView Grid.Column="1" x:Name="Master_ListView_Contacts" ItemsSource="{Binding Master_ContactCollection}" />
+                    <ScrollViewer >
+                        <ListBox ItemsSource="{Binding Master_ContactCollection}" DisplayMemberPath="Name" x:Name="Master_ListBox_ContactCollection" SelectionMode="Single"/>
+                    </ScrollViewer>
+
+                    <Grid Grid.Column="2" DataContext="{Binding SelectedItem, ElementName=Master_ListBox_ContactCollection}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Row="1" Content="Id"/>
+                        <Label Grid.Row="2" Content="Name"/>
+                        <Label Grid.Row="3" Content="Firma"/>
+                        <Label Grid.Row="5" Content="Email"/>
+                        <Label Grid.Row="6" Content="Mobil"/>
+                        <Label Grid.Row="7" Content="KeyWord"/>
+                        <Label Grid.Row="8" Content="Maximale Inaktivität"/>
+                        <Label Grid.Row="9" Content="Übermittungsweg"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="1" x:Name="Master_TextBlock_Contact_Id" Text="{Binding Id}" />
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="Master_TextBox_Contact_Name" Text="{Binding Name}" />
+
+                        <ComboBox Grid.Row="3" Grid.Column="1" x:Name="Master_ComboBox_Companies" SelectedValue="{Binding Company.Name}" SelectionChanged="Master_ComboBox_Companies_SelectionChanged" />
+                        <TextBox Grid.Row="4" Grid.Column="0" x:Name="Master_TextBox_Contact_CompanyId" Text="{Binding CompanyId}" Visibility="Visible" />
+
+                        <Expander Grid.Row="4" Grid.Column="1" Header="Infos zur Firma" x:Name="Master_Company_Expander" >
+                            <StackPanel Margin="5,0,0,10">
+                                <Label Content="Firmenbezeichnung" />
+                                <TextBox x:Name="Master_TextBox_Company_Name" Text="{Binding Company.Name}"/>
+                                <Label Content="Adresse"/>
+                                <TextBox x:Name="Master_TextBox_Company_Address" Text="{Binding Company.Address}"/>
+                                <Label Content="Postleitzahl"/>
+                                <TextBox x:Name="Master_TextBox_Company_ZipCode" Text="{Binding Company.ZipCode}"/>
+                                <Label Content="Ort"/>
+                                <TextBox x:Name="Master_TextBox_Company_City" Text="{Binding Company.City}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Firma löschen" Margin="5" MaxHeight="20" x:Name="Master_Button_DeleteCompany"  />
+                                    <Button Content="Firma ändern" Margin="5" MaxHeight="20"  IsEnabled="{Binding ElementName=Master_TextBox_Company_Name, Path=Text.Length, Mode=OneWay}" x:Name="Master_Button_UpdateCompany"  />
+                                    <Button Content="Firma erstellen" Margin="5" MaxHeight="20"  IsEnabled="{Binding ElementName=Master_TextBox_Company_Name, Path=Text.Length, Mode=OneWay}" x:Name="Master_Button_CreateCompany" Click="Master_Button_CreateCompany_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Expander>
+
+                        <TextBox Grid.Row="5" Grid.Column="1" x:Name="Master_TextBox_Contact_Email" Text="{Binding EmailAddress}" />
+                        <TextBlock Grid.Row="6" Grid.Column="1" Text="+" VerticalAlignment="Center" Margin="5"/>
+                        <TextBox Grid.Row="6" Grid.Column="1" x:Name="Master_TextBox_Contact_Phone" Margin="15,0,0,0" Text="{Binding Phone}" />
+                        <TextBox Grid.Row="7" Grid.Column="1" x:Name="Master_TextBox_Contact_KeyWord" Text="{Binding KeyWord}" />
+
+                        <TextBox Grid.Row="8" Grid.Column="1" x:Name="Master_TextBox_MaxInactivity" Text="{Binding MaxInactiveHours}" />
+
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Row="9" Grid.Column="1" >
+                            <CheckBox Content="SMS" Margin="3" x:Name="Master_CheckBox_RecievesSMS" IsChecked="{Binding DeliverSms}" />
+                            <CheckBox Content="Email" Margin="3" x:Name="Master_CheckBox_RecievesEmail" IsChecked="{Binding DeliverEmail}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="10" Grid.Column="1" Orientation="Horizontal">
+                            <Button Content="Löschen" Margin="5" Width="70" x:Name="Master_Button_DeleteContact" Click="Master_Button_DeleteContact_Click" />
+                            <Button Content="Neu" Margin="5" Width="70" x:Name="Master_Button_CreateContact" Click="Master_Button_CreateContact_Click" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="10" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" >
+                            <Button Content="Zurücksetzen" Margin="5" Width="80" x:Name="Master_Button_ResetContacts" Click="Master_Button_ResetContacts_Click" />
+                            <Button Content="Speichern" Margin="5" Width="70" x:Name="Master_Button_UpdateContact" Click="Master_Button_UpdateContact_Click" />
+                        </StackPanel>
+
+                    </Grid>
+                
+
+                <Grid DataContext="{Binding Text, ElementName=Master_TextBox_Contact_CompanyId}" >
+
+
+                </Grid>
+
                 </Grid>
             </TabItem>
 
@@ -124,7 +224,7 @@
                         <ComboBox x:Name="Raw_Combobox_Tabels" SelectionChanged="Raw_Combobox_Tabels_SelectionChanged"/>
                     </StackPanel>
                     <ScrollViewer Margin="10" MaxHeight="800">
-                        <DataGrid ItemsSource="{Binding Raw_RawTableShow}" />
+                        <DataGrid x:Name="Raw_DataGrid_TableShow" ItemsSource="{Binding}" />
                     </ScrollViewer>
                 </StackPanel>
             </TabItem>
@@ -132,7 +232,50 @@
 
         <StatusBar Grid.Row="2">
             <StatusBarItem Content="Status" />
-            
+            <StatusBarItem>
+                <WrapPanel>
+                    <Image Source="/Resources/signal_icon-icons.com_72281.png" Margin="2,0" Width="15" />
+                    <ProgressBar Grid.Column="2" ToolTip="Signalstärke GSM-Netz" 
+                                 Orientation="Vertical"
+                                 Maximum="31" 
+                                 Width="10"
+                                 x:Name="Status_ProgressBar_SignalQuality" 
+                                 Foreground="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Value, Converter={StaticResource ProgressForegroundConverter}}"
+                                 />
+                </WrapPanel>
+            </StatusBarItem>
+            <Separator Width="1" HorizontalAlignment="Center"/>
+            <StatusBarItem>
+                <WrapPanel>
+                    <Image Source="/Resources/inbox_icon-icons.com_72325.png" Margin="2,0" Width="15" ToolTip="Eingang"/>
+                    <TextBlock Text="{Binding InBoxCount}" ToolTip="in Bearbeitung"/>
+                    <TextBlock Text="/"/>
+                    <TextBlock Text="{Binding InMsgsSinceStartup}" ToolTip="seit Neustart"/>
+                </WrapPanel>
+            </StatusBarItem>
+            <Separator Width="1" HorizontalAlignment="Center"/>
+            <StatusBarItem>
+                <WrapPanel>
+                    <Image Source="/Resources/outbox_icon-icons.com_72302.png" Margin="2,0" Width="15" ToolTip="Ausgang"/>
+                    <TextBlock Text="{Binding OutBoxCount}" ToolTip="in Bearbeitung"/>
+                    <TextBlock Text="/"/>
+                    <TextBlock Text="{Binding OutMsgsSinceStartup}" ToolTip="seit Neustart"/>
+                </WrapPanel>
+            </StatusBarItem>
+            <Separator Width="1" HorizontalAlignment="Center"/>
+            <StatusBarItem>
+                <WrapPanel>
+                    <Image Source="/Resources/trash.png" Margin="2,0" Width="15" ToolTip="Fehlermeldungen / verworfene Nachrichten seit Neustart"/>
+                    <TextBlock Text="{Binding ErrorCount}"/>
+                </WrapPanel>
+            </StatusBarItem>
+            <Separator Width="1" HorizontalAlignment="Center"/>
+            <StatusBarItem>
+                <WrapPanel>
+                    <Image Source="/Resources/server_icon-icons.com_72284.png" Margin="2,0" Width="15" ToolTip="Meldungen in der Datenbank"/>
+                    <TextBlock Text="{Binding ErrorCount}"/>
+                </WrapPanel>
+            </StatusBarItem>
         </StatusBar>
     </Grid>
 </Window>

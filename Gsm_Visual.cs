@@ -59,6 +59,17 @@ namespace MelBox2_4
 
     public partial class MainWindow : Window
     {
+        private static Visibility _ComIsOpen = Visibility.Hidden;
+
+        public static Visibility ComIsOpen
+        {
+            get { return _ComIsOpen; }
+            set { 
+                _ComIsOpen = value;
+                NotifyStaticPropertyChanged();
+            }
+        }
+
 
         private void Gsm_TextBox_SerialPortResponse_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -82,6 +93,7 @@ namespace MelBox2_4
 
             //Signalqualität abfragen            
             PortComandExe("AT+CSQ");
+            
         }
 
         /// <summary>
@@ -103,7 +115,7 @@ namespace MelBox2_4
                     Match m = rS.Match(portResponse);
                     if (!m.Success)
                     {
-                        MessageBox.Show("Antwort von GSM-Modem auf Signalqualität konnte nicht verarbeitet werden:\r\n" + portResponse);
+                        Log(Topic.SMS, Prio.Warnung, 2003230749, "Antwort von GSM-Modem auf Signalqualität konnte nicht verarbeitet werden:\r\n" + portResponse);
                         return;
                     }
 
@@ -113,9 +125,9 @@ namespace MelBox2_4
                     this.Gsm_TextBox_SerialPortResponse.Dispatcher.Invoke(DispatcherPriority.Normal,
                         new Action(() => { this.Gsm_ProgressBar_SignalQuality.Value = signalQuality; }));
 
-                    //TODO: Wenn signalQuality < 10 Nachricht an Admin
+                    //Wenn signalQuality < 10 Nachricht an Admin
                     if (signalQuality < 10)                    
-                        Messages.Create_SignalQuality(signalQuality);                    
+                        Messages.Create_SignalQualityMessage(signalQuality);                    
                 }
                 finally
                 {
@@ -124,7 +136,6 @@ namespace MelBox2_4
                 }
             }
         }
-
 
         private void Gsm_Button_ReadSmsFromId_Click(object sender, RoutedEventArgs e)
         {
@@ -175,8 +186,20 @@ namespace MelBox2_4
 
            PortComandExe("AT+CSCS=\"GSM\"");
            System.Threading.Thread.Sleep(500);
-           PortComandExe("AT+CMGS=\"+" + phone + "\"\r" + content + ctrlz);
+           PortComandExe("AT+CMGS=\"+" + phone + "\"\r");
+           System.Threading.Thread.Sleep(500);
+           PortComandExe(content + ctrlz);
 
+        }
+
+        private void Gsm_Button_ComPortInitialize_Click(object sender, RoutedEventArgs e)
+        {
+            _spManager.StartListening();
+        }
+
+        private void Gsm_Button_ComPortDispose_Click(object sender, RoutedEventArgs e)
+        {
+            _spManager.StopListening();
         }
 
     }
