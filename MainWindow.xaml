@@ -164,7 +164,7 @@
                         <ComboBox Grid.Row="3" Grid.Column="1" x:Name="Master_ComboBox_Companies" SelectedValue="{Binding Company.Name}" SelectionChanged="Master_ComboBox_Companies_SelectionChanged" />
                         <TextBox Grid.Row="4" Grid.Column="0" x:Name="Master_TextBox_Contact_CompanyId" Text="{Binding CompanyId}" Visibility="Visible" />
 
-                        <Expander Grid.Row="4" Grid.Column="1" Header="Infos zur Firma" x:Name="Master_Company_Expander" >
+                        <Expander Grid.Row="4" Grid.Column="1" Header="Infos zur Firma" x:Name="Master_Expander_Companies" >
                             <StackPanel Margin="5,0,0,10">
                                 <Label Content="Firmenbezeichnung" />
                                 <TextBox x:Name="Master_TextBox_Company_Name" Text="{Binding Company.Name}"/>
@@ -175,8 +175,8 @@
                                 <Label Content="Ort"/>
                                 <TextBox x:Name="Master_TextBox_Company_City" Text="{Binding Company.City}"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <Button Content="Firma löschen" Margin="5" MaxHeight="20" x:Name="Master_Button_DeleteCompany"  />
-                                    <Button Content="Firma ändern" Margin="5" MaxHeight="20"  IsEnabled="{Binding ElementName=Master_TextBox_Company_Name, Path=Text.Length, Mode=OneWay}" x:Name="Master_Button_UpdateCompany"  />
+                                    <Button Content="Firma löschen" Margin="5" MaxHeight="20" x:Name="Master_Button_DeleteCompany" Click="Master_Button_DeleteCompany_Click" />
+                                    <Button Content="Firma ändern" Margin="5" MaxHeight="20"  IsEnabled="{Binding ElementName=Master_TextBox_Company_Name, Path=Text.Length, Mode=OneWay}" x:Name="Master_Button_UpdateCompany" Click="Master_Button_UpdateCompany_Click" />
                                     <Button Content="Firma erstellen" Margin="5" MaxHeight="20"  IsEnabled="{Binding ElementName=Master_TextBox_Company_Name, Path=Text.Length, Mode=OneWay}" x:Name="Master_Button_CreateCompany" Click="Master_Button_CreateCompany_Click"/>
                                 </StackPanel>
                             </StackPanel>
@@ -196,12 +196,13 @@
 
                         <StackPanel Grid.Row="10" Grid.Column="1" Orientation="Horizontal">
                             <Button Content="Löschen" Margin="5" Width="70" x:Name="Master_Button_DeleteContact" Click="Master_Button_DeleteContact_Click" />
-                            <Button Content="Neu" Margin="5" Width="70" x:Name="Master_Button_CreateContact" Click="Master_Button_CreateContact_Click" />
+                            <Button Content="Ändern" Margin="5" Width="70" x:Name="Master_Button_UpdateContact" Click="Master_Button_UpdateContact_Click" />
+                            <Button Content="Erstellen" Margin="5" Width="70" x:Name="Master_Button_CreateContact" Click="Master_Button_CreateContact_Click" />
                         </StackPanel>
 
                         <StackPanel Grid.Row="10" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" >
-                            <Button Content="Zurücksetzen" Margin="5" Width="80" x:Name="Master_Button_ResetContacts" Click="Master_Button_ResetContacts_Click" />
-                            <Button Content="Speichern" Margin="5" Width="70" x:Name="Master_Button_UpdateContact" Click="Master_Button_UpdateContact_Click" />
+                            <Button Content="Zurücksetzen" Margin="5" Width="80" x:Name="Master_Button_ResetContacts" Click="Master_Button_ResetContacts_Click" ToolTip="Stellt den Zustand aus der Datenbank wieder her." />
+                            
                         </StackPanel>
 
                     </Grid>

@@ -96,6 +96,12 @@ namespace SerialPortListener.Serial
         /// </summary>
         public void StartListening()
         {
+            if (_currentSerialSettings.PortName.Length == 0)
+            {
+                MessageBox.Show("Es ist kein COM-Port auf dem System vorhanden.");
+                return;
+            }
+
             try
             {
 
@@ -128,6 +134,10 @@ namespace SerialPortListener.Serial
                 _serialPort.Open();
 
 
+            }
+            catch (ArgumentException ex_arg)
+            {
+                MessageBox.Show("Es ist kein COM-Port auf dem System vorhanden:\r\n" + ex_arg.Message + ex_arg.InnerException);
             }
             catch (IOException ex_io)
             {
@@ -187,6 +197,8 @@ namespace SerialPortListener.Serial
         // Part of basic design pattern for implementing Dispose
         protected virtual void Dispose(bool disposing)
         {
+            if (_serialPort == null) return;
+
             if (disposing)
             {
                 _serialPort.DataReceived -= new SerialDataReceivedEventHandler(SerialPort_DataReceived);

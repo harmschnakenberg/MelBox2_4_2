@@ -128,31 +128,45 @@ namespace MelBox2_4
             //TODO: FUnktioniert nicht: im XAML sind Company 
             MessageBoxResult r = MessageBox.Show("Wirklich neue Firmeninformation erstellen?", "MelBox2 - Neue Firmenadresse anlegen?", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            if (r != MessageBoxResult.Yes) return;
+            string newCompanyName = Contacts.UnknownName + DateTime.Now.Ticks;
 
-            string companyName = Master_TextBox_Company_Name.Text;
-            string address = Master_TextBox_Company_Address.Text;
+            uint lastId = sql.CreateCompany(newCompanyName, Contacts.UnknownName, 0, Contacts.UnknownName);
 
-            if (!uint.TryParse(Master_TextBox_Company_ZipCode.Text, out uint zipCode))
-            {
-                zipCode = 0;
-            }
+            Contact currentContact = (Contact)Master_ListBox_ContactCollection.SelectedItem;
 
-            string city = Master_TextBox_Company_City.Text;
-
-            uint affectedRows = sql.CreateCompany(companyName, address, zipCode, city);
-
-            if (affectedRows > 0)
-            {
-                _ = MessageBox.Show("Neuer Firmeneintrag >" + companyName + "< wurde erstellt.", "MelBox2 - Firmenadresse neu erstelt.", MessageBoxButton.OK, MessageBoxImage.Information);
-                MainWindow.Log(MainWindow.Topic.Contacts, MainWindow.Prio.Info, 2003251812, "Neuer Eintrag Firma >" + companyName + "< in Tabelle Company");
-            }
+            currentContact.CompanyId = lastId;
 
             Master_ComboBox_Companies.ItemsSource = sql.GetListOfCompanies();
+            Master_ComboBox_Companies.SelectedValue = newCompanyName;
         }
 
+        private void Master_Button_UpdateCompany_Click(object sender, RoutedEventArgs e)
+        {
+            Contact currentContact = (Contact)Master_ListBox_ContactCollection.SelectedItem;
 
+            bool success = Sql.UpdateCompany(currentContact.Company.Id, currentContact.Company.Name, currentContact.Company.Address, currentContact.Company.ZipCode, currentContact.Company.City);
 
+            if (!success)
+            {
+                _ = MessageBox.Show("Firmeneintrag für >" + currentContact.Company.Name + "< konnte nicht geändert werden.", "MelBox2 - Fehler Firmeneintrag ändern.", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Log(Topic.Contacts, Prio.Warnung, 2003261300, "Firmeneintrag für >" + currentContact.Company.Name + "< konnte nicht geändert werden.");
+            }
+        }
+
+        private void Master_Button_DeleteCompany_Click(object sender, RoutedEventArgs e)
+        {
+            if (!uint.TryParse(Master_TextBox_Contact_CompanyId.Text, out uint companyId))
+            {
+                Contact currentContact = (Contact)Master_ListBox_ContactCollection.SelectedItem;
+                _ = MessageBox.Show("Der Firmeneintrag für >" + currentContact.Company.Name + "< [" + currentContact.Company.Id + "] konnte nicht gelöscht werden.", "MelBox2 - Fehler Firmeneintrag löschen.", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Log(Topic.Contacts, Prio.Warnung, 2003261650, "Der Firmeneintrag für > " + currentContact.Company.Name + " < [" + currentContact.Company.Id + "] konnte nicht gelöscht werden.");
+            }
+
+            if (!Sql.DeleteCompany(companyId))
+            {
+
+            }
+        }
 
         #endregion
 
@@ -165,10 +179,29 @@ namespace MelBox2_4
         /// <param name="e"></param>
         private void Master_Button_CreateContact_Click(object sender, RoutedEventArgs e)
         {
-            Master_ContactCollection.Add(new Contact());
-            Master_ListBox_ContactCollection.SelectedIndex = Master_ListBox_ContactCollection.Items.Count - 1;
-            //Master_TextBlock_Contact_Id.Text = "-nicht gespeichert-";
+            Contact contact = new Contact()
+            {
+                Name = Contacts.UnknownName + DateTime.Now.Ticks,
+                CompanyId = 1,
+                EmailAddress = "xyz@abc.de"
+            };
+
+            Master_ContactCollection.Add(contact);
+            Master_ListBox_ContactCollection.SelectedIndex = Master_ListBox_ContactCollection.Items.Count - 1;            
             Master_TextBox_Contact_Name.Focus();
+
+            //Neuen Contact in der Datenbank erzeugen
+            uint newId = Sql.CreateContact(contact);
+
+            if (newId == 0)
+            {
+                MessageBox.Show("Es ist ein Fehler aufgetreten bei der Neuerstellung von\r\n" + contact.Name,
+                    "MelBox2 - Fehler bei Benutzer erstellen", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            Contact currentContact = (Contact)Master_ListBox_ContactCollection.SelectedItem;
+            currentContact.Id = newId;
         }
 
         /// <summary>
@@ -195,7 +228,8 @@ namespace MelBox2_4
 
             if (currentContact.Id == 0)
             {
-                //Neuen Contact in der Datenbank erzeugen
+                //Hierhin sollte es niemals kommen.
+                //Neuen Contact in der Datenbank erzeugen 
                 uint newId = Sql.CreateContact(currentContact);
 
                 if (newId == 0)                

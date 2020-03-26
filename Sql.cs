@@ -521,8 +521,8 @@ namespace MelBox2_4
         /// <param name="address"></param>
         /// <param name="zipCode"></param>
         /// <param name="city"></param>
-        /// <returns></returns>
-        internal int UpdateCompany(uint companyId, string companyName, string address, int zipCode, string city)
+        /// <returns>true: Ein Eitrag erfolgreich geändert</returns>
+        internal bool UpdateCompany(uint companyId, string companyName, string address, uint zipCode, string city)
         {
             string query = "UPDATE \"Company\" SET Name = @Name, Address = @Address, ZipCode = @ZipCode, City = @City WHERE ID = @ID ;";
 
@@ -535,7 +535,7 @@ namespace MelBox2_4
                 { "@City", city }
             };
 
-            return ExecuteWrite(query, args);
+            return (ExecuteWrite(query, args) == 1);
         }
 
         /// <summary>
@@ -543,7 +543,7 @@ namespace MelBox2_4
         /// </summary>
         /// <param name="companyId"></param>
         /// <returns></returns>
-        internal int DeleteCompany(uint companyId)
+        internal bool DeleteCompany(uint companyId)
         {
             string query = "DELETE FROM \"Company\" WHERE ID = @ID ;";
 
@@ -552,7 +552,7 @@ namespace MelBox2_4
                 { "@ID", companyId }
             };
 
-            return ExecuteWrite(query, args);
+            return (ExecuteWrite(query, args) == 1);
         }
 
         #endregion
@@ -792,7 +792,7 @@ namespace MelBox2_4
                     {"@Name", contact.Name},
                     {"@CompanyId", contact.CompanyId},
                     {"@Phone", contact.Phone},
-                    {"@Email", contact.Email},
+                    {"@Email", contact.Email.Address},
                     {"@KeyWord", contact.KeyWord},
                     {"@MaxInactiveHours", contact.MaxInactiveHours},
                     {"@SendWay", (uint)contact.ContactType}
@@ -835,7 +835,7 @@ namespace MelBox2_4
                     {"@Name", contact.Name},
                     {"@CompanyId", contact.CompanyId},
                     {"@Phone", contact.Phone},
-                    {"@Email", contact.Email},
+                    {"@Email", contact.Email.Address},
                     {"@KeyWord", contact.KeyWord},
                     {"@MaxInactiveHours", contact.MaxInactiveHours},
                     {"@SendWay", (uint)contact.ContactType},
