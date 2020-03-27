@@ -26,6 +26,19 @@ namespace MelBox2_4
         }
 
 
+        DispatcherTimer _GsmPendingTimeout;
+
+        public void StartGsmPendingTimer(int seconds)
+        {
+            _GsmPendingTimeout = new DispatcherTimer();
+
+            //Signalqualität prüfen
+            _GsmPendingTimeout.Tick += UnsubscribeGetOutgoingSmsStatus;
+            _GsmPendingTimeout.Interval = new TimeSpan(0, 0, 0, seconds);
+            _GsmPendingTimeout.Start();
+        }
+
+
         //DispatcherTimer _InactivityCheckTimer;
 
         //public void StartInactivityCheckTimer()

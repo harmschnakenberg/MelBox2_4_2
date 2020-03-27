@@ -40,11 +40,14 @@ namespace MelBox2_4
 
         public uint CompanyId { get; set; }
 
-        public Company Company { get
+        public Company Company
+        {
+            get
             {
                 Sql sql = new Sql();
                 return sql.GetCompanyFromDb(CompanyId);
-            } 
+            }
+            set => Company = value;
         }
 
         public System.Net.Mail.MailAddress Email { get; set; } 

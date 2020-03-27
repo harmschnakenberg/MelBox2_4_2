@@ -835,7 +835,7 @@ namespace MelBox2_4
                     {"@Name", contact.Name},
                     {"@CompanyId", contact.CompanyId},
                     {"@Phone", contact.Phone},
-                    {"@Email", contact.Email.Address},
+                    {"@Email", contact.EmailAddress},
                     {"@KeyWord", contact.KeyWord},
                     {"@MaxInactiveHours", contact.MaxInactiveHours},
                     {"@SendWay", (uint)contact.ContactType},

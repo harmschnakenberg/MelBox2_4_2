@@ -105,7 +105,7 @@ namespace MelBox2_4
                 }
                 else
                 {
-                    Log(Topic.SMS, Prio.Fehler, 2003221714, "Id der eingegangenen SMS konnte nicht ausgelesen werden aus >" + str + "< ");
+                    Log(Topic.SMS, Prio.Fehler, 2003221714, "Die ID der eingegangenen SMS konnte nicht ausgelesen werden aus >" + str + "< ");
                 }
 
             }
@@ -132,10 +132,16 @@ namespace MelBox2_4
             }
         }
 
+        void UnsubscribeGetOutgoingSmsStatus(object sender, EventArgs e)
+        {
+            SpManager.NewSerialDataRecieved -= GetOutgoingSmsStatus;
+            MessageBox.Show("Timeout zum senden einer SMS abgelaufen 2003262246");
+        }
+
         /// <summary>
-                /// Schreibt ein AT-Command an das Modem
-                /// </summary>
-                /// <param name="command"></param>
+        /// Schreibt ein AT-Command an das Modem
+        /// </summary>
+        /// <param name="command"></param>
         private void PortComandExe(string command)
         {
             System.IO.Ports.SerialPort port = _spManager.SerialPort;
@@ -192,8 +198,9 @@ namespace MelBox2_4
             System.Threading.Thread.Sleep(500);
 
             //Ereignis abbonieren
-            _spManager.NewSerialDataRecieved += GetOutgoingSmsStatus; 
-                 
+            _spManager.NewSerialDataRecieved += GetOutgoingSmsStatus;
+            StartGsmPendingTimer(10);
+
             //senden
             PortComandExe("AT+CMGS=\"+" + phone + "\"\r");
             System.Threading.Thread.Sleep(500);

@@ -18,7 +18,8 @@ namespace MelBox2_4
             Email,
             SMS,
             Internal,
-            SQL
+            SQL,
+            COM
         }
 
         public enum Prio

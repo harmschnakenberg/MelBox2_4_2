@@ -94,14 +94,7 @@ namespace MelBox2_4
             Log(Topic.General, Prio.Info, 2003181727, "Neustart MelBox2");
             Messages.Create_StartupMessage();
 
-            Master_ContactCollection = Sql.GetContacts();
-
-            //foreach (Contact contact in Sql.GetContacts())
-            //{
-            //    Master_ContactCollection.Add(contact);
-            //}
-
-            //Master_CompanyCollection = Sql.GetCompanies();
+            Master_ContactCollection = Sql.GetContacts("1=1 ORDER BY Name"); 
 
         }
 

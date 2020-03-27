@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.CompilerServices;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -23,26 +25,13 @@ namespace MelBox2_4
 
         public static ObservableCollection<Contact> Master_ContactCollection
         {
-            get { return _Master_ContactCollection; }
-            set 
-            { 
+            get => _Master_ContactCollection;
+            set
+            {
                 _Master_ContactCollection = value;
                 NotifyStaticPropertyChanged();
             }
         }
-
-        //private static ObservableCollection<Company> _Master_CompanyCollection = new ObservableCollection<Company>();
-
-        //public static ObservableCollection<Company> Master_CompanyCollection
-        //{
-        //    get { return _Master_CompanyCollection; }
-        //    set
-        //    {
-        //        _Master_CompanyCollection = value;
-        //        NotifyStaticPropertyChanged();
-        //    }
-        //}
-
 
         #region Methoden
 
@@ -51,57 +40,8 @@ namespace MelBox2_4
             if (Master_ListBox_ContactCollection.SelectedIndex == -1)  
                 Master_ListBox_ContactCollection.SelectedIndex = Master_ListBox_ContactCollection.Items.Count - 1;
 
-                Master_ComboBox_Companies.ItemsSource = Sql.GetListOfCompanies();
+                Master_ComboBox_Companies.ItemsSource = Sql.GetListOfCompanies("1=1 ORDER BY Name");
         }
-
-
-
-
-        //private void Mast_ComboBox_UnknownContacts_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    string identifier = Contacts.UnknownName;
-
-        //    if (Mast_ComboBox_UnknownContacts.SelectedIndex != -1)
-        //    {
-        //        identifier = Mast_ComboBox_UnknownContacts.SelectedValue.ToString();
-        //    }
-
-        //    string query = "SELECT Contact.ID, Contact.Name, CompanyID, Company.Name, Email, Phone, KeyWord, MaxInactiveHours, SendWay FROM Contact LEFT JOIN Company ON Contact.CompanyID = Company.ID WHERE Email =@email OR KeyWord = @keyword OR Phone = @phone";
-
-        //    Dictionary<string, object> dictArgs = new Dictionary<string, object>
-        //    {
-        //        { "@email", identifier },
-        //        { "@keyword", identifier },
-        //        { "@phone", identifier }
-        //    };
-
-        //    Dictionary<string, object> dict = sql.GetRowValues(query, dictArgs);
-
-        //    if (dict.Count == 0) return;
-
-        //    if (!ushort.TryParse(dict["SendWay"].ToString(), out ushort roleId))
-        //    {
-        //        roleId = (ushort)MessageType.NoCategory;
-        //    }
-
-        //    Mast_TextBox_Name.Text = dict["Contact.Name"].ToString();
-        //    Mast_ComboBox_Company.SelectedValue = dict["Company.Name"].ToString();
-        //    Mast_TextBox_Email.Text = dict["Email"].ToString();
-        //    Mast_TextBox_Cellphone.Text = "+" + dict["Cellphone"].ToString();
-        //    Mast_TextBox_KeyWord.Text = dict["KeyWord"].ToString();
-        //    Mast_TextBox_MaxInactivity.Text = dict["MaxInactive"].ToString();
-        //    Mast_CheckBox_RecievesEmail.IsChecked = ((ushort)MessageType.SentToEmail & roleId) == (ushort) MessageType.SentToEmail;
-        //    Mast_CheckBox_RecievesSMS.IsChecked = ((ushort)MessageType.SentToSms & roleId) == (ushort)MessageType.SentToSms;
-
-
-        //    //FillTabMasterData(dict);
-        //}
-
-        //private void Mast_Button_SearchName_Click(object sender, RoutedEventArgs e)
-        //{
-
-        //}
-
 
         #region Company
 
@@ -125,46 +65,88 @@ namespace MelBox2_4
 
         private void Master_Button_CreateCompany_Click(object sender, RoutedEventArgs e)
         {
-            //TODO: FUnktioniert nicht: im XAML sind Company 
-            MessageBoxResult r = MessageBox.Show("Wirklich neue Firmeninformation erstellen?", "MelBox2 - Neue Firmenadresse anlegen?", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            string newCompanyName = Contacts.UnknownName + DateTime.Now.Ticks;
+            uint.TryParse(Master_TextBox_Company_ZipCode.Text, out uint zipCode);
+            string companyName = Master_TextBox_Company_Name.Text;
+            string companyAddress = Master_TextBox_Company_Address.Text;
+            string companyCity = Master_TextBox_Company_City.Text;
 
-            uint lastId = sql.CreateCompany(newCompanyName, Contacts.UnknownName, 0, Contacts.UnknownName);
+            MessageBoxResult r = MessageBox.Show("Wirklich einen neuen Firmeneintrag erstellen?\r\n" +
+                "\r\nFirma:\t\t" + companyName +
+                "\r\nAdressse:\t" + companyAddress +
+                "\r\nin:\t\t" + zipCode + " " + companyCity,
+                "MelBox2 - Neue Firmenadresse anlegen?", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (r != MessageBoxResult.Yes) return;
+
+            uint lastId = sql.CreateCompany(companyName, companyAddress, zipCode, companyCity);
 
             Contact currentContact = (Contact)Master_ListBox_ContactCollection.SelectedItem;
 
             currentContact.CompanyId = lastId;
 
-            Master_ComboBox_Companies.ItemsSource = sql.GetListOfCompanies();
-            Master_ComboBox_Companies.SelectedValue = newCompanyName;
+            Master_ComboBox_Companies.ItemsSource = sql.GetListOfCompanies("1=1 ORDER BY Name");
+            Master_ComboBox_Companies.SelectedValue = companyName;
         }
 
         private void Master_Button_UpdateCompany_Click(object sender, RoutedEventArgs e)
         {
-            Contact currentContact = (Contact)Master_ListBox_ContactCollection.SelectedItem;
+            uint.TryParse(Master_TextBox_Contact_CompanyId.Text, out uint companyId);
+            uint.TryParse(Master_TextBox_Company_ZipCode.Text, out uint zipCode);
+            string companyName = Master_TextBox_Company_Name.Text;
+            string companyAddress = Master_TextBox_Company_Address.Text;
+            string companyCity = Master_TextBox_Company_City.Text;
+   
+            string question = "Diese Firmenadresse ändern?";
+                    
+            MessageBoxResult r = MessageBox.Show(question +"\r\n" +
+                "\r\nFirma[" + companyId + "]:\t\t" + companyName +
+                "\r\nAdressse:\t" + companyAddress +
+                "\r\nin:\t\t" + zipCode + " " + companyCity,
+               "MelBox2 - " + question, MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            bool success = Sql.UpdateCompany(currentContact.Company.Id, currentContact.Company.Name, currentContact.Company.Address, currentContact.Company.ZipCode, currentContact.Company.City);
+            if (r != MessageBoxResult.Yes) return;
 
-            if (!success)
+            bool success = Sql.UpdateCompany(companyId, companyName, companyAddress, zipCode, companyCity);
+           
+            if (success)
             {
-                _ = MessageBox.Show("Firmeneintrag für >" + currentContact.Company.Name + "< konnte nicht geändert werden.", "MelBox2 - Fehler Firmeneintrag ändern.", MessageBoxButton.OK, MessageBoxImage.Warning);
-                Log(Topic.Contacts, Prio.Warnung, 2003261300, "Firmeneintrag für >" + currentContact.Company.Name + "< konnte nicht geändert werden.");
+                Master_ComboBox_Companies.ItemsSource = sql.GetListOfCompanies("1=1 ORDER BY Name");
+                if (Master_ComboBox_Companies.Items.Contains(companyName))
+                    Master_ComboBox_Companies.SelectedValue = companyName;
+                else
+                    Master_ComboBox_Companies.SelectedIndex = 1;
             }
+            else
+            {
+                _ = MessageBox.Show("Firmenadresse ändern für >" + companyName + "< konnte nicht umgesetzt werden.", "MelBox2 - Fehler Firmenadresse ändern", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Log(Topic.Contacts, Prio.Warnung, 2003261300, "Firmenadresse ändern konnte für >" + companyName + "< nicht umgesetzt werden.");
+            }
+  
         }
 
         private void Master_Button_DeleteCompany_Click(object sender, RoutedEventArgs e)
         {
-            if (!uint.TryParse(Master_TextBox_Contact_CompanyId.Text, out uint companyId))
-            {
-                Contact currentContact = (Contact)Master_ListBox_ContactCollection.SelectedItem;
+            
+            Contact currentContact = (Contact)Master_ListBox_ContactCollection.SelectedItem;
+
+            MessageBoxResult r = MessageBox.Show("Wirklich diesen Firmeneintrag löschen?\r\n" +
+                "\r\nFirma[" + currentContact.Company.Id + "]:\t\t" + currentContact.Company.Name +
+                "\r\nAdressse:\t" + currentContact.Company.Address +
+                "\r\nin:\t\t" + currentContact.Company.ZipCode + " " + currentContact.Company.City,
+               "MelBox2 - Diese Firmenadresse löschen?", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (r != MessageBoxResult.Yes) return;
+
+            if (!Sql.DeleteCompany(currentContact.Company.Id))
+            {               
                 _ = MessageBox.Show("Der Firmeneintrag für >" + currentContact.Company.Name + "< [" + currentContact.Company.Id + "] konnte nicht gelöscht werden.", "MelBox2 - Fehler Firmeneintrag löschen.", MessageBoxButton.OK, MessageBoxImage.Warning);
-                Log(Topic.Contacts, Prio.Warnung, 2003261650, "Der Firmeneintrag für > " + currentContact.Company.Name + " < [" + currentContact.Company.Id + "] konnte nicht gelöscht werden.");
+                Log(Topic.Contacts, Prio.Warnung, 2003262000, "Der Firmeneintrag für > " + currentContact.Company.Name + " < [" + currentContact.Company.Id + "] konnte nicht gelöscht werden.");
             }
-
-            if (!Sql.DeleteCompany(companyId))
+            else
             {
-
+                Master_ComboBox_Companies.ItemsSource = sql.GetListOfCompanies("1=1 ORDER BY Name");
+                Master_ComboBox_Companies.SelectedIndex = 1;
             }
         }
 
@@ -293,12 +275,7 @@ namespace MelBox2_4
 
         private void Master_Button_ResetContacts_Click(object sender, RoutedEventArgs e)
         {
-            //foreach (Contact contact in Sql.GetContacts())
-            //{
-            //    Master_ContactCollection.Add(contact);
-            //}
-
-            Master_ContactCollection = Sql.GetContacts();
+            Master_ContactCollection = Sql.GetContacts("1=1 ORDER BY Name");
             Master_ListBox_ContactCollection.SelectedIndex = 0;
         }
 

@@ -98,7 +98,9 @@ namespace SerialPortListener.Serial
         {
             if (_currentSerialSettings.PortName.Length == 0)
             {
-                MessageBox.Show("Es ist kein COM-Port auf dem System vorhanden.");
+                string msg = "Es ist kein COM-Port auf dem System vorhanden.";
+                MessageBox.Show(msg, "ACHTUNG", MessageBoxButton.OK, MessageBoxImage.Error);
+                MainWindow.Log(MainWindow.Topic.COM, MainWindow.Prio.Fehler, 2003262224, msg);
                 return;
             }
 

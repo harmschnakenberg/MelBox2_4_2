@@ -127,7 +127,7 @@
                     </Grid.ColumnDefinitions>
 
                     <ScrollViewer >
-                        <ListBox ItemsSource="{Binding Master_ContactCollection}" DisplayMemberPath="Name" x:Name="Master_ListBox_ContactCollection" SelectionMode="Single"/>
+                        <ListBox ItemsSource="{Binding Master_ContactCollection}" DisplayMemberPath="Name" x:Name="Master_ListBox_ContactCollection" SelectionMode="Single" />
                     </ScrollViewer>
 
                     <Grid Grid.Column="2" DataContext="{Binding SelectedItem, ElementName=Master_ListBox_ContactCollection}">
@@ -162,18 +162,18 @@
                         <TextBox Grid.Row="2" Grid.Column="1" x:Name="Master_TextBox_Contact_Name" Text="{Binding Name}" />
 
                         <ComboBox Grid.Row="3" Grid.Column="1" x:Name="Master_ComboBox_Companies" SelectedValue="{Binding Company.Name}" SelectionChanged="Master_ComboBox_Companies_SelectionChanged" />
-                        <TextBox Grid.Row="4" Grid.Column="0" x:Name="Master_TextBox_Contact_CompanyId" Text="{Binding CompanyId}" Visibility="Visible" />
+                        <TextBox Grid.Row="4" Grid.Column="0" x:Name="Master_TextBox_Contact_CompanyId" Text="{Binding CompanyId}" Visibility="Collapsed" />
 
                         <Expander Grid.Row="4" Grid.Column="1" Header="Infos zur Firma" x:Name="Master_Expander_Companies" >
                             <StackPanel Margin="5,0,0,10">
                                 <Label Content="Firmenbezeichnung" />
-                                <TextBox x:Name="Master_TextBox_Company_Name" Text="{Binding Company.Name}"/>
+                                <TextBox x:Name="Master_TextBox_Company_Name" Text="{Binding Company.Name, UpdateSourceTrigger=Explicit}"  />
                                 <Label Content="Adresse"/>
-                                <TextBox x:Name="Master_TextBox_Company_Address" Text="{Binding Company.Address}"/>
+                                <TextBox x:Name="Master_TextBox_Company_Address" Text="{Binding Company.Address, UpdateSourceTrigger=Explicit}"/>
                                 <Label Content="Postleitzahl"/>
-                                <TextBox x:Name="Master_TextBox_Company_ZipCode" Text="{Binding Company.ZipCode}"/>
+                                <TextBox x:Name="Master_TextBox_Company_ZipCode" Text="{Binding Company.ZipCode, UpdateSourceTrigger=Explicit}"/>
                                 <Label Content="Ort"/>
-                                <TextBox x:Name="Master_TextBox_Company_City" Text="{Binding Company.City}"/>
+                                <TextBox x:Name="Master_TextBox_Company_City" Text="{Binding Company.City, UpdateSourceTrigger=Explicit}"/>
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="Firma löschen" Margin="5" MaxHeight="20" x:Name="Master_Button_DeleteCompany" Click="Master_Button_DeleteCompany_Click" />
                                     <Button Content="Firma ändern" Margin="5" MaxHeight="20"  IsEnabled="{Binding ElementName=Master_TextBox_Company_Name, Path=Text.Length, Mode=OneWay}" x:Name="Master_Button_UpdateCompany" Click="Master_Button_UpdateCompany_Click" />
